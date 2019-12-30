@@ -458,7 +458,7 @@ TfLiteStatus MicroAllocator::InitializeRuntimeTensor(
             alignof(TfLiteFloatArray)));
     quantization->zero_point->size = channels;
     quantization->scale->size = channels;
-    int* zero_point_data = quantization->zero_point->data;
+    int32_t* zero_point_data = quantization->zero_point->data;
     float* scale_data = quantization->scale->data;
     for (int i = 0; i < channels; i++) {
       zero_point_data[i] = src_quantization->zero_point()->Get(i);

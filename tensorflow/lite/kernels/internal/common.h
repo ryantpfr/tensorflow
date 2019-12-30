@@ -728,7 +728,7 @@ inline int LegacyHowManyThreads(int max_num_threads, int rows, int cols,
   // Limit the number of threads according to the overall size of the problem.
   if (thread_count > 1) {
     // Empirically determined value.
-    static constexpr std::uint64_t min_cubic_size_per_thread = 64 * 1024;
+    static constexpr std::uint64_t min_cubic_size_per_thread = 64ll * 1024ll;
 
     // We can only multiply two out of three sizes without risking overflow
     const std::uint64_t cubic_size =

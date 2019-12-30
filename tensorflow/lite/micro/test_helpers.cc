@@ -217,9 +217,7 @@ TfLiteIntArray* IntArrayFromInts(const int* int_array) {
 // Create a TfLiteFloatArray from an array of floats.  The first element in the
 // supplied array must be the size of the array expressed as a float.
 TfLiteFloatArray* FloatArrayFromFloats(const float* floats) {
-  static_assert(sizeof(float) == sizeof(int),
-                "assumes sizeof(float) == sizeof(int) to perform casting");
-  int size = static_cast<int>(floats[0]);
+  int32_t size = static_cast<int32_t>(floats[0]);
   *reinterpret_cast<int32_t*>(const_cast<float*>(floats)) = size;
   return reinterpret_cast<TfLiteFloatArray*>(const_cast<float*>(floats));
 }

@@ -76,14 +76,14 @@ typedef struct {
 // Fixed size list of integers. Used for dimensions and inputs/outputs tensor
 // indices
 typedef struct {
-  int size;
+  int32_t size;
 // gcc 6.1+ have a bug where flexible members aren't properly handled
 // https://github.com/google/re2/commit/b94b7cd42e9f02673cd748c1ac1d16db4052514c
 #if !defined(__clang__) && defined(__GNUC__) && __GNUC__ == 6 && \
     __GNUC_MINOR__ >= 1
-  int data[0];
+  int32_t data[0];
 #else
-  int data[];
+  int32_t data[];
 #endif
 } TfLiteIntArray;
 
@@ -115,7 +115,7 @@ void TfLiteIntArrayFree(TfLiteIntArray* a);
 
 // Fixed size list of floats. Used for per-channel quantization.
 typedef struct {
-  int size;
+  int32_t size;
 // gcc 6.1+ have a bug where flexible members aren't properly handled
 // https://github.com/google/re2/commit/b94b7cd42e9f02673cd748c1ac1d16db4052514c
 #if !defined(__clang__) && defined(__GNUC__) && __GNUC__ == 6 && \

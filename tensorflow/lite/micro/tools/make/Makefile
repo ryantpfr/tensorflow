@@ -198,6 +198,12 @@ ESP_PROJECT_FILES := \
   main/CMakeLists.txt \
   components/tfmicro/CMakeLists.txt
 
+CCS_PROJECT_FILES := \
+  README_MSP.md \
+  .project \
+  .cproject \
+  .ccsproject \
+
 ALL_PROJECT_TARGETS :=
 
 ARDUINO_LIBRARY_TARGETS :=
@@ -330,3 +336,6 @@ $(DEPDIR)/%.d: ;
 .PRECIOUS: $(BINDIR)%_test
 
 -include $(patsubst %,$(DEPDIR)/%.d,$(basename $(ALL_SRCS)))
+
+$(info $(ALL_TAGS))
+
