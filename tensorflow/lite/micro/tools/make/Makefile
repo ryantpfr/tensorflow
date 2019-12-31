@@ -201,9 +201,8 @@ ESP_PROJECT_FILES := \
 CCS_PROJECT_FILES := \
   README_MSP.md \
   .project \
-  .cproject \
-  .ccsproject \
-
+  .cproject 
+  
 ALL_PROJECT_TARGETS :=
 
 ARDUINO_LIBRARY_TARGETS :=
@@ -336,6 +335,3 @@ $(DEPDIR)/%.d: ;
 .PRECIOUS: $(BINDIR)%_test
 
 -include $(patsubst %,$(DEPDIR)/%.d,$(basename $(ALL_SRCS)))
-
-$(info $(ALL_TAGS))
-

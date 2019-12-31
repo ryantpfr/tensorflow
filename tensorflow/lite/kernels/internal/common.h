@@ -141,7 +141,7 @@ inline int32 MultiplyByQuantizedMultiplierSmallerThanOneExp(
 inline int32 MultiplyByQuantizedMultiplierGreaterThanOne(
     int32 x, int32 quantized_multiplier, int left_shift) {
   using gemmlowp::SaturatingRoundingDoublingHighMul;
-  return SaturatingRoundingDoublingHighMul(x * (1 << left_shift),
+  return SaturatingRoundingDoublingHighMul(x * (static_cast<int32_t>(1) << left_shift),
                                            quantized_multiplier);
 }
 
@@ -152,7 +152,7 @@ inline int32 MultiplyByQuantizedMultiplier(int32 x, int32 quantized_multiplier,
   int left_shift = shift > 0 ? shift : 0;
   int right_shift = shift > 0 ? 0 : -shift;
   return RoundingDivideByPOT(SaturatingRoundingDoublingHighMul(
-                                 x * (1 << left_shift), quantized_multiplier),
+                                 x * (static_cast<int32_t>(1)  << left_shift), quantized_multiplier),
                              right_shift);
 }
 

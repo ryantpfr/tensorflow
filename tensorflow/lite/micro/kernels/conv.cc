@@ -95,12 +95,18 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteNode* node,
         GetOptionalInputTensor(context, node, kBiasTensor);
     TfLiteTensor* output = GetOutput(context, node, kOutputTensor);
 
+    int per_chan_shift[kMaxChannels]; //TODO implement this using the same array
+
     TF_LITE_ENSURE_STATUS(tflite::PopulateConvolutionQuantizationParams(
         context, input, filter, bias, output, params->activation,
         &data->output_multiplier, &data->output_shift,
         &data->output_activation_min, &data->output_activation_max,
         data->per_channel_output_multiplier,
-        reinterpret_cast<int*>(data->per_channel_output_shift)));
+        per_chan_shift));
+
+    for(unsigned int i = 0; i < kMaxChannels; i++){
+        data->per_channel_output_shift[i] = per_chan_shift[i];
+    }
   }
   return kTfLiteOk;
 }

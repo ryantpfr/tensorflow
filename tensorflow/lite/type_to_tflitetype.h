@@ -35,7 +35,7 @@ constexpr TfLiteType typeToTfLiteType() {
   return kTfLiteNoType;
 }
 template <>
-constexpr TfLiteType typeToTfLiteType<int>() {
+constexpr TfLiteType typeToTfLiteType<int32_t>() {
   return kTfLiteInt32;
 }
 template <>
