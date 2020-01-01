@@ -15,14 +15,20 @@ limitations under the License.
 
 // #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/examples/hello_world/sine_model_data.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
+#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 #include "tensorflow/lite/version.h"
+#include <msp430.h>
 
 TF_LITE_MICRO_TESTS_BEGIN
+WDTCTL = WDTPW | WDTHOLD;               // Stop WDT
+P1OUT &= ~BIT0;                         // Clear P1.0 output latch for a defined power-on state
+P1DIR |= BIT0;                          // Set P1.0 to output direction
+PM5CTL0 &= ~LOCKLPM5;
 
 TF_LITE_MICRO_TEST(LoadModelAndPerformInference) {
   // Set up logging
@@ -40,15 +46,18 @@ TF_LITE_MICRO_TEST(LoadModelAndPerformInference) {
   }
 
   // This pulls in all the operation implementations we need
-  tflite::ops::micro::AllOpsResolver resolver;
+  static tflite::MicroMutableOpResolver micro_mutable_op_resolver;
+  micro_mutable_op_resolver.AddBuiltin(tflite::BuiltinOperator_FULLY_CONNECTED,
+                                       tflite::ops::micro::Register_FULLY_CONNECTED(),3,3);
+
 
   // Create an area of memory to use for input, output, and intermediate arrays.
   // Finding the minimum value for your model may require some trial and error.
   const int tensor_arena_size = 2 * 1024;
-  uint8_t tensor_arena[tensor_arena_size];
+  static uint8_t tensor_arena[tensor_arena_size];
 
   // Build an interpreter to run the model with
-  tflite::MicroInterpreter interpreter(model, resolver, tensor_arena,
+  tflite::MicroInterpreter interpreter(model, micro_mutable_op_resolver, tensor_arena,
                                        tensor_arena_size, error_reporter);
 
   // Allocate memory from the tensor_arena for the model's tensors

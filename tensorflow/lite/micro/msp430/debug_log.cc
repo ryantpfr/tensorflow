@@ -39,6 +39,5 @@ limitations under the License.
 #include <cstdio>
 
 extern "C" void DebugLog(const char* s) {
-    // fprintf is much slower on msp430
-    if(*s != 255) fputs(s,stderr);
+    printf("%s",s);
 }
