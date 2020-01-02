@@ -160,7 +160,7 @@ template <typename T>
 int CountLeadingZeros(T integer_input) {
   static_assert(std::is_unsigned<T>::value,
                 "Only unsigned integer types handled.");
-#if defined(__GNUC__)
+#if defined(__GNUC__) and !defined(__MSP430__)
   return integer_input ? __builtin_clz(integer_input)
                        : std::numeric_limits<T>::digits;
 #else

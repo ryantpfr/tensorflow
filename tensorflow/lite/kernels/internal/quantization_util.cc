@@ -289,7 +289,7 @@ void PreprocessSoftmaxScaling(double beta, double input_scale,
   }
 #else   // TFLITE_EMULATE_FLOAT
   const double input_beta_real_multiplier = std::min(
-      beta * input_scale * (1 << (31 - input_integer_bits)), (1ll << 31) - 1.0);
+      beta * input_scale * (static_cast<int32_t>(1) << (31 - input_integer_bits)), (1ll << 31) - 1.0);
 #endif  // TFLITE_EMULATE_FLOAT
 
   QuantizeMultiplierGreaterThanOne(input_beta_real_multiplier,
