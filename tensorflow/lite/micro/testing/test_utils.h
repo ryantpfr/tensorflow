@@ -34,7 +34,7 @@ namespace testing {
 // TODO(kreeger): Don't use this anymore in our tests. Optimized compiler
 // settings can play with pointer placement on the stack (b/140130236).
 inline TfLiteIntArray* IntArrayFromInitializer(
-    std::initializer_list<int> int_initializer) {
+    std::initializer_list<int32_t> int_initializer) {
   return IntArrayFromInts(int_initializer.begin());
 }
 

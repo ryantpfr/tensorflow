@@ -15,15 +15,15 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestCeil(const int* input_dims_data, const float* input_data,
+void TestCeil(const int32_t* input_dims_data, const float* input_data,
               const float* expected_output_data, float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(input_dims_data);
@@ -37,16 +37,14 @@ void TestCeil(const int* input_dims_data, const float* input_data,
   };
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_CEIL, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_CEIL();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
   TfLiteNode node;
   node.inputs = inputs_array;
@@ -72,7 +70,7 @@ TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(SingleDim) {
   float output_data[2];
-  const int input_dims[] = {1, 2};
+  const int32_t input_dims[] = {1, 2};
   const float input_values[] = {8.5, 0.0};
   const float golden[] = {9, 0};
   tflite::testing::TestCeil(input_dims, input_values, golden, output_data);
@@ -80,7 +78,7 @@ TF_LITE_MICRO_TEST(SingleDim) {
 
 TF_LITE_MICRO_TEST(MultiDims) {
   float output_data[10];
-  const int input_dims[] = {4, 2, 1, 1, 5};
+  const int32_t input_dims[] = {4, 2, 1, 1, 5};
   const float input_values[] = {
       0.0001,  8.0001,  0.9999,  9.9999,  0.5,
       -0.0001, -8.0001, -0.9999, -9.9999, -0.5,

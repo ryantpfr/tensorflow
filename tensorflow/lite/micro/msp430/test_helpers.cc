@@ -42,7 +42,7 @@ class StackAllocator : public flatbuffers::Allocator {
 
   static StackAllocator& instance() {
     // Avoid using true dynamic memory allocation to be portable to bare metal.
-    static char inst_memory[sizeof(StackAllocator)];
+      __attribute__((section(".upper")))static char inst_memory[sizeof(StackAllocator)];
     static StackAllocator* inst = new (inst_memory) StackAllocator;
     return *inst;
   }

@@ -15,9 +15,9 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
@@ -28,12 +28,11 @@ void ValidateArgMinMaxGoldens(TfLiteTensor* tensors, int tensors_size,
                               int output_size, bool using_min) {
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  ::tflite::ops::micro::AllOpsResolver resolver;
   const TfLiteRegistration* registration;
   if (using_min) {
-    registration = resolver.FindOp(tflite::BuiltinOperator_ARG_MIN, 1);
+    registration = tflite::ops::micro::Register_ARG_MIN();
   } else {
-    registration = resolver.FindOp(tflite::BuiltinOperator_ARG_MAX, 1);
+    registration = tflite::ops::micro::Register_ARG_MAX();
   }
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -42,11 +41,11 @@ void ValidateArgMinMaxGoldens(TfLiteTensor* tensors, int tensors_size,
   if (registration->init) {
     user_data = registration->init(&context, nullptr, init_data_size);
   }
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
   TfLiteNode node;
   node.inputs = inputs_array;
@@ -70,9 +69,9 @@ void ValidateArgMinMaxGoldens(TfLiteTensor* tensors, int tensors_size,
   }
 }
 
-void TestArgMinMaxFloat(const int* input_dims_data, const float* input_values,
-                        const int* axis_dims_data, const int32_t* axis_values,
-                        const int* output_dims_data, int32_t* output,
+void TestArgMinMaxFloat(const int32_t* input_dims_data, const float* input_values,
+                        const int32_t* axis_dims_data, const int32_t* axis_values,
+                        const int32_t* output_dims_data, int32_t* output,
                         const int32_t* goldens, bool using_min) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* axis_dims = IntArrayFromInts(axis_dims_data);
@@ -93,12 +92,12 @@ void TestArgMinMaxFloat(const int* input_dims_data, const float* input_values,
 }
 
 template <typename T>
-void TestArgMinMaxQuantized(const int* input_dims_data,
+void TestArgMinMaxQuantized(const int32_t* input_dims_data,
                             const float* input_values, T* input_quantized,
                             float input_scale, int input_zero_point,
-                            const int* axis_dims_data,
+                            const int32_t* axis_dims_data,
                             const int32_t* axis_values,
-                            const int* output_dims_data, int32_t* output,
+                            const int32_t* output_dims_data, int32_t* output,
                             const int32_t* goldens, bool using_min) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* axis_dims = IntArrayFromInts(axis_dims_data);
@@ -127,11 +126,11 @@ TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(GetMaxArgFloat) {
   int32_t output_data[1];
-  const int input_dims[] = {4, 1, 1, 1, 4};
+  const int32_t input_dims[] = {4, 1, 1, 1, 4};
   const float input_values[] = {0.1, 0.9, 0.7, 0.3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {1};
 
   tflite::testing::TestArgMinMaxFloat(input_dims, input_values, axis_dims,
@@ -141,11 +140,11 @@ TF_LITE_MICRO_TEST(GetMaxArgFloat) {
 
 TF_LITE_MICRO_TEST(GetMinArgFloat) {
   int32_t output_data[1];
-  const int input_dims[] = {4, 1, 1, 1, 4};
+  const int32_t input_dims[] = {4, 1, 1, 1, 4};
   const float input_values[] = {0.1, 0.9, 0.7, 0.3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {0};
 
   tflite::testing::TestArgMinMaxFloat(input_dims, input_values, axis_dims,
@@ -156,11 +155,11 @@ TF_LITE_MICRO_TEST(GetMinArgFloat) {
 TF_LITE_MICRO_TEST(GetMaxArgUInt8) {
   int32_t output_data[1];
   const int input_size = 4;
-  const int input_dims[] = {4, 1, 1, 1, input_size};
+  const int32_t input_dims[] = {4, 1, 1, 1, input_size};
   const float input_values[] = {1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {1};
 
   float input_scale = 0.5;
@@ -175,11 +174,11 @@ TF_LITE_MICRO_TEST(GetMaxArgUInt8) {
 TF_LITE_MICRO_TEST(GetMinArgUInt8) {
   int32_t output_data[1];
   const int input_size = 4;
-  const int input_dims[] = {4, 1, 1, 1, input_size};
+  const int32_t input_dims[] = {4, 1, 1, 1, input_size};
   const float input_values[] = {1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {0};
 
   float input_scale = 0.5;
@@ -194,11 +193,11 @@ TF_LITE_MICRO_TEST(GetMinArgUInt8) {
 TF_LITE_MICRO_TEST(GetMaxArgInt8) {
   int32_t output_data[1];
   const int input_size = 4;
-  const int input_dims[] = {4, 1, 1, 1, input_size};
+  const int32_t input_dims[] = {4, 1, 1, 1, input_size};
   const float input_values[] = {1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {1};
 
   float input_scale = 0.5;
@@ -213,11 +212,11 @@ TF_LITE_MICRO_TEST(GetMaxArgInt8) {
 TF_LITE_MICRO_TEST(GetMinArgInt8) {
   int32_t output_data[1];
   const int input_size = 4;
-  const int input_dims[] = {4, 1, 1, 1, input_size};
+  const int32_t input_dims[] = {4, 1, 1, 1, input_size};
   const float input_values[] = {1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 1};
+  const int32_t output_dims[] = {3, 1, 1, 1};
   const int32_t goldens[] = {0};
 
   float input_scale = 0.5;
@@ -232,11 +231,11 @@ TF_LITE_MICRO_TEST(GetMinArgInt8) {
 TF_LITE_MICRO_TEST(GetMaxArgMulDimensions) {
   int32_t output_data[2];
   const int input_size = 8;
-  const int input_dims[] = {4, 1, 1, 2, 4};
+  const int32_t input_dims[] = {4, 1, 1, 2, 4};
   const float input_values[] = {1, 2, 7, 8, 1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 2};
+  const int32_t output_dims[] = {3, 1, 1, 2};
   const int32_t goldens[] = {3, 1};
 
   float input_scale = 0.5;
@@ -251,11 +250,11 @@ TF_LITE_MICRO_TEST(GetMaxArgMulDimensions) {
 TF_LITE_MICRO_TEST(GetMinArgMulDimensions) {
   int32_t output_data[2];
   const int input_size = 8;
-  const int input_dims[] = {4, 1, 1, 2, 4};
+  const int32_t input_dims[] = {4, 1, 1, 2, 4};
   const float input_values[] = {1, 2, 7, 8, 1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {3};
-  const int output_dims[] = {3, 1, 1, 2};
+  const int32_t output_dims[] = {3, 1, 1, 2};
   const int32_t goldens[] = {0, 0};
 
   float input_scale = 0.5;
@@ -270,11 +269,11 @@ TF_LITE_MICRO_TEST(GetMinArgMulDimensions) {
 TF_LITE_MICRO_TEST(GetMaxArgNegativeAxis) {
   const int input_size = 8;
   const int output_size = 4;
-  const int input_dims[] = {4, 1, 1, 2, 4};
+  const int32_t input_dims[] = {4, 1, 1, 2, 4};
   const float input_values[] = {1, 2, 7, 8, 1, 9, 7, 3};
-  const int axis_dims[] = {3, 1, 1, 1};
+  const int32_t axis_dims[] = {3, 1, 1, 1};
   const int32_t axis_values[] = {-2};
-  const int output_dims[] = {3, 1, 1, 4};
+  const int32_t output_dims[] = {3, 1, 1, 4};
   const int32_t goldens[] = {0, 1, 0, 0};
 
   float input_scale = 0.5;

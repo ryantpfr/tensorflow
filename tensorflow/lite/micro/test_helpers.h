@@ -49,7 +49,7 @@ void PopulateContext(TfLiteTensor* tensors, int tensors_size,
 
 // Create a TfLiteIntArray from an array of ints.  The first element in the
 // supplied array must be the size of the array expressed as an int.
-TfLiteIntArray* IntArrayFromInts(const int* int_array);
+TfLiteIntArray* IntArrayFromInts(const int32_t* int_array);
 
 // Create a TfLiteFloatArray from an array of floats.  The first element in the
 // supplied array must be the size of the array expressed as a float.
@@ -97,13 +97,13 @@ TfLiteTensor CreateQuantizedBiasTensor(const float* data, int32_t* quantized,
 // scale multiplied by weight scale for each channel.
 TfLiteTensor CreatePerChannelQuantizedBiasTensor(
     const float* input, int32_t* quantized, TfLiteIntArray* dims,
-    float input_scale, float* weight_scales, float* scales, int* zero_points,
+    float input_scale, float* weight_scales, float* scales, int32_t* zero_points,
     TfLiteAffineQuantization* affine_quant, int quantized_dimension,
     const char* name, bool is_variable = false);
 
 TfLiteTensor CreateSymmetricPerChannelQuantizedTensor(
     const float* input, int8_t* quantized, TfLiteIntArray* dims, float* scales,
-    int* zero_points, TfLiteAffineQuantization* affine_quant,
+    int32_t* zero_points, TfLiteAffineQuantization* affine_quant,
     int quantized_dimension, const char* name, bool is_variable = false);
 
 }  // namespace testing

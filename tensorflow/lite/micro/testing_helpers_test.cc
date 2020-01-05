@@ -22,7 +22,7 @@ TF_LITE_MICRO_TEST(CreateQuantizedBiasTensor) {
   float input_scale = 0.5;
   float weight_scale = 0.5;
   const int tensor_size = 12;
-  int dims_arr[] = {4, 2, 3, 2, 1};
+  int32_t dims_arr[] = {4, 2, 3, 2, 1};
   const char* tensor_name = "test_tensor";
   int32_t quantized[tensor_size];
   float pre_quantized[] = {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 10};
@@ -47,11 +47,11 @@ TF_LITE_MICRO_TEST(CreatePerChannelQuantizedBiasTensor) {
   float weight_scales[] = {0.5, 1, 2, 4};
   const int tensor_size = 12;
   const int channels = 4;
-  int dims_arr[] = {4, 4, 3, 1, 1};
+  int32_t dims_arr[] = {4, 4, 3, 1, 1};
   const char* tensor_name = "test_tensor";
   int32_t quantized[tensor_size];
   float scales[channels + 1];
-  int zero_points[] = {4, 0, 0, 0, 0};
+  int32_t zero_points[] = {4, 0, 0, 0, 0};
   float pre_quantized[] = {-10, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 10};
   int32_t expected_quantized_values[] = {-40, -20, -16, -6, -4, -2,
                                          0,   1,   2,   2,  2,  5};
@@ -79,7 +79,7 @@ TF_LITE_MICRO_TEST(CreatePerChannelQuantizedBiasTensor) {
 TF_LITE_MICRO_TEST(CreateSymmetricPerChannelQuantizedTensor) {
   const int tensor_size = 12;
   const int channels = 2;
-  const int dims_arr[] = {4, channels, 3, 2, 1};
+  const int32_t dims_arr[] = {4, channels, 3, 2, 1};
   const char* tensor_name = "test_tensor";
   int8_t quantized[12];
   const float pre_quantized[] = {-127, -55, -4, -3, -2, -1,
@@ -89,7 +89,7 @@ TF_LITE_MICRO_TEST(CreateSymmetricPerChannelQuantizedTensor) {
   float expected_scales[] = {1.0, 0.5};
   TfLiteIntArray* dims = tflite::testing::IntArrayFromInts(dims_arr);
 
-  int zero_points[channels + 1];
+  int32_t zero_points[channels + 1];
   float scales[channels + 1];
   TfLiteAffineQuantization quant;
   TfLiteTensor result =
