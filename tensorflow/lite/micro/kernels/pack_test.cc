@@ -16,18 +16,18 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/debug_log.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 
-void TestPackTwoInputsFloat(std::initializer_list<int> input1_dims_data,
+void TestPackTwoInputsFloat(std::initializer_list<int32_t> input1_dims_data,
                             std::initializer_list<float> input1_data,
-                            std::initializer_list<int> input2_dims_data,
+                            std::initializer_list<int32_t> input2_dims_data,
                             std::initializer_list<float> input2_data, int axis,
-                            std::initializer_list<int> output_dims_data,
+                            std::initializer_list<int32_t> output_dims_data,
                             std::initializer_list<float> expected_output_data,
                             float* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
@@ -50,9 +50,7 @@ void TestPackTwoInputsFloat(std::initializer_list<int> input1_dims_data,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PACK, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PACK();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePackParams builtin_data = {
@@ -94,14 +92,14 @@ void TestPackTwoInputsFloat(std::initializer_list<int> input1_dims_data,
   }
 }
 
-void TestPackThreeInputsFloat(std::initializer_list<int> input1_dims_data,
+void TestPackThreeInputsFloat(std::initializer_list<int32_t> input1_dims_data,
                               std::initializer_list<float> input1_data,
-                              std::initializer_list<int> input2_dims_data,
+                              std::initializer_list<int32_t> input2_dims_data,
                               std::initializer_list<float> input2_data,
-                              std::initializer_list<int> input3_dims_data,
+                              std::initializer_list<int32_t> input3_dims_data,
                               std::initializer_list<float> input3_data,
                               int axis,
-                              std::initializer_list<int> output_dims_data,
+                              std::initializer_list<int32_t> output_dims_data,
                               std::initializer_list<float> expected_output_data,
                               float* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
@@ -127,9 +125,7 @@ void TestPackThreeInputsFloat(std::initializer_list<int> input1_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PACK, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PACK();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePackParams builtin_data = {
@@ -172,11 +168,11 @@ void TestPackThreeInputsFloat(std::initializer_list<int> input1_dims_data,
 }
 
 void TestPackTwoInputsQuantized(
-    std::initializer_list<int> input1_dims_data,
+    std::initializer_list<int32_t> input1_dims_data,
     std::initializer_list<uint8_t> input1_data,
-    std::initializer_list<int> input2_dims_data,
+    std::initializer_list<int32_t> input2_dims_data,
     std::initializer_list<uint8_t> input2_data, int axis,
-    std::initializer_list<int> output_dims_data,
+    std::initializer_list<int32_t> output_dims_data,
     std::initializer_list<uint8_t> expected_output_data, uint8_t* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
   TfLiteIntArray* input2_dims = IntArrayFromInitializer(input2_dims_data);
@@ -200,9 +196,7 @@ void TestPackTwoInputsQuantized(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PACK, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PACK();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePackParams builtin_data = {
@@ -244,11 +238,11 @@ void TestPackTwoInputsQuantized(
 }
 
 void TestPackTwoInputsQuantized32(
-    std::initializer_list<int> input1_dims_data,
+    std::initializer_list<int32_t> input1_dims_data,
     std::initializer_list<int32_t> input1_data,
-    std::initializer_list<int> input2_dims_data,
+    std::initializer_list<int32_t> input2_dims_data,
     std::initializer_list<int32_t> input2_data, int axis,
-    std::initializer_list<int> output_dims_data,
+    std::initializer_list<int32_t> output_dims_data,
     std::initializer_list<int32_t> expected_output_data, int32_t* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
   TfLiteIntArray* input2_dims = IntArrayFromInitializer(input2_dims_data);
@@ -270,9 +264,7 @@ void TestPackTwoInputsQuantized32(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PACK, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PACK();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePackParams builtin_data = {

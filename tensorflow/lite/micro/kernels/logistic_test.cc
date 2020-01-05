@@ -15,18 +15,18 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestLogisticFloat(std::initializer_list<int> input_dims_data,
+void TestLogisticFloat(std::initializer_list<int32_t> input_dims_data,
                        std::initializer_list<float> input_data,
                        std::initializer_list<float> expected_output_data,
-                       std::initializer_list<int> output_dims_data,
+                       std::initializer_list<int32_t> output_dims_data,
                        float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInitializer(output_dims_data);
@@ -43,9 +43,7 @@ void TestLogisticFloat(std::initializer_list<int> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_LOGISTIC, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_LOGISTIC();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   const char* init_data = nullptr;
@@ -54,9 +52,9 @@ void TestLogisticFloat(std::initializer_list<int> input_dims_data,
   if (registration->init) {
     user_data = registration->init(&context, init_data, init_data_size);
   }
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
   TfLiteNode node;

@@ -15,7 +15,7 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/test_helpers.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
@@ -25,18 +25,16 @@ namespace testing {
 namespace {
 
 template <typename T>
-void TestDequantize(const int* input_dims_data, const float* input_data,
+void TestDequantize(const int32_t* input_dims_data, const float* input_data,
                     T* input_data_quantized, float scale, int zero_point,
-                    const int* output_dims_data,
+                    const int32_t* output_dims_data,
                     const float* expected_output_data, float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-
   float scales_array[] = {1, scale};
-  int zero_points_array[] = {1, zero_point};
+  int32_t zero_points_array[] = {1, zero_point};
   TfLiteAffineQuantization quant;
   quant.scale = FloatArrayFromFloats(scales_array);
   quant.zero_point = IntArrayFromInts(zero_points_array);
@@ -57,8 +55,7 @@ void TestDequantize(const int* input_dims_data, const float* input_data,
   PopulateContext(tensors, tensors_size, &context);
 
   // Version 2 of dequantize supports int8 quantization.
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_DEQUANTIZE, 2);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_DEQUANTIZE();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -69,11 +66,11 @@ void TestDequantize(const int* input_dims_data, const float* input_data,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -109,7 +106,7 @@ TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(DequantizeOpTestUint8) {
   const int length = 10;
-  const int dims[] = {2, 5, 2};
+  const int32_t dims[] = {2, 5, 2};
   const float values[] = {-63.5, -63,  -62.5, -62,  -61.5,
                           62,    62.5, 63,    63.5, 64};
   const float scale = 0.5;
@@ -122,7 +119,7 @@ TF_LITE_MICRO_TEST(DequantizeOpTestUint8) {
 
 TF_LITE_MICRO_TEST(DequantizeOpTestInt8) {
   const int length = 10;
-  const int dims[] = {2, 5, 2};
+  const int32_t dims[] = {2, 5, 2};
   const float values[] = {-63.5, -63,  -62.5, -62,  -61.5,
                           62,    62.5, 63,    63.5, 64};
   const float scale = 0.5;
