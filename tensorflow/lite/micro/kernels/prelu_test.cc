@@ -15,20 +15,20 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestPreluFloat(std::initializer_list<int> input_dims_data,
+void TestPreluFloat(std::initializer_list<int32_t> input_dims_data,
                     std::initializer_list<float> input_data,
-                    std::initializer_list<int> alpha_dims_data,
+                    std::initializer_list<int32_t> alpha_dims_data,
                     std::initializer_list<float> alpha_data,
                     std::initializer_list<float> expected_output_data,
-                    std::initializer_list<int> output_dims_data,
+                    std::initializer_list<int32_t> output_dims_data,
                     float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
   TfLiteIntArray* alpha_dims = IntArrayFromInitializer(alpha_dims_data);
@@ -44,9 +44,7 @@ void TestPreluFloat(std::initializer_list<int> input_dims_data,
   };
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PRELU, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PRELU();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   size_t init_data_size = 0;
@@ -54,9 +52,9 @@ void TestPreluFloat(std::initializer_list<int> input_dims_data,
   if (registration->init) {
     user_data = registration->init(&context, nullptr, init_data_size);
   }
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
   TfLiteIntArray* temporaries_array = IntArrayFromInitializer({0});
   TfLiteNode node;
@@ -82,14 +80,14 @@ void TestPreluFloat(std::initializer_list<int> input_dims_data,
   }
 }
 
-void TestPreluQuantized(std::initializer_list<int> input_dims_data,
+void TestPreluQuantized(std::initializer_list<int32_t> input_dims_data,
                         std::initializer_list<uint8_t> input_data,
                         float input_min, float input_max,
-                        std::initializer_list<int> alpha_dims_data,
+                        std::initializer_list<int32_t> alpha_dims_data,
                         std::initializer_list<uint8_t> alpha_data,
                         float alpha_min, float alpha_max,
                         std::initializer_list<uint8_t> expected_output_data,
-                        std::initializer_list<int> output_dims_data,
+                        std::initializer_list<int32_t> output_dims_data,
                         float output_min, float output_max,
                         uint8_t* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -109,9 +107,7 @@ void TestPreluQuantized(std::initializer_list<int> input_dims_data,
   };
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_PRELU, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_PRELU();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   size_t init_data_size = 0;
@@ -119,9 +115,9 @@ void TestPreluQuantized(std::initializer_list<int> input_dims_data,
   if (registration->init) {
     user_data = registration->init(&context, nullptr, init_data_size);
   }
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
   TfLiteIntArray* temporaries_array = IntArrayFromInitializer({0});
   TfLiteNode node;

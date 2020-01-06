@@ -17,20 +17,20 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestAveragePoolingFloat(std::initializer_list<int> input_dims_data,
+void TestAveragePoolingFloat(std::initializer_list<int32_t> input_dims_data,
                              std::initializer_list<float> input_data,
                              const int filter_height, const int filter_width,
                              const int stride_height, const int stride_width,
                              std::initializer_list<float> expected_output_data,
-                             std::initializer_list<int> output_dims_data,
+                             std::initializer_list<int32_t> output_dims_data,
                              TfLitePadding padding,
                              TfLiteFusedActivation activation,
                              float* output_data) {
@@ -49,9 +49,7 @@ void TestAveragePoolingFloat(std::initializer_list<int> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_AVERAGE_POOL_2D, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {padding,      stride_width,  stride_height,
@@ -62,11 +60,11 @@ void TestAveragePoolingFloat(std::initializer_list<int> input_dims_data,
   if (registration->init) {
     user_data = registration->init(&context, init_data, init_data_size);
   }
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -95,12 +93,12 @@ void TestAveragePoolingFloat(std::initializer_list<int> input_dims_data,
 }
 
 void TestAveragePoolingUint8(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<uint8_t> input_data, const float input_min,
     const float input_max, const int filter_height, const int filter_width,
     const int stride_height, const int stride_width,
     std::initializer_list<uint8_t> expected_output_data,
-    std::initializer_list<int> output_dims_data, float output_min,
+    std::initializer_list<int32_t> output_dims_data, float output_min,
     float output_max, TfLitePadding padding, TfLiteFusedActivation activation,
     uint8_t* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -120,9 +118,7 @@ void TestAveragePoolingUint8(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_AVERAGE_POOL_2D, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {padding,      stride_width,  stride_height,
@@ -133,11 +129,11 @@ void TestAveragePoolingUint8(
   if (registration->init) {
     user_data = registration->init(&context, init_data, init_data_size);
   }
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -165,13 +161,13 @@ void TestAveragePoolingUint8(
   }
 }
 
-void TestAveragePoolingInt8(std::initializer_list<int> input_dims_data,
+void TestAveragePoolingInt8(std::initializer_list<int32_t> input_dims_data,
                             std::initializer_list<int8_t> input_data,
                             const float input_min, const float input_max,
                             const int filter_height, const int filter_width,
                             const int stride_height, const int stride_width,
                             std::initializer_list<int8_t> expected_output_data,
-                            std::initializer_list<int> output_dims_data,
+                            std::initializer_list<int32_t> output_dims_data,
                             float output_min, float output_max,
                             TfLitePadding padding,
                             TfLiteFusedActivation activation,
@@ -193,9 +189,7 @@ void TestAveragePoolingInt8(std::initializer_list<int> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_AVERAGE_POOL_2D, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {padding,      stride_width,  stride_height,
@@ -206,11 +200,11 @@ void TestAveragePoolingInt8(std::initializer_list<int> input_dims_data,
   if (registration->init) {
     user_data = registration->init(&context, init_data, init_data_size);
   }
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -238,11 +232,11 @@ void TestAveragePoolingInt8(std::initializer_list<int> input_dims_data,
   }
 }
 
-void TestMaxPoolFloat(std::initializer_list<int> input_dims_data,
+void TestMaxPoolFloat(std::initializer_list<int32_t> input_dims_data,
                       std::initializer_list<float> input_data, int filter_width,
                       int filter_height, int stride_width, int stride_height,
                       std::initializer_list<float> expected_output_data,
-                      std::initializer_list<int> output_dims_data,
+                      std::initializer_list<int32_t> output_dims_data,
                       TfLitePadding padding, TfLiteFusedActivation activation,
                       float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -260,9 +254,7 @@ void TestMaxPoolFloat(std::initializer_list<int> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_MAX_POOL_2D, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {
@@ -277,11 +269,11 @@ void TestMaxPoolFloat(std::initializer_list<int> input_dims_data,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -308,11 +300,11 @@ void TestMaxPoolFloat(std::initializer_list<int> input_dims_data,
 }
 
 void TestMaxPoolQuantizedUInt8(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<uint8_t> input_data, float input_min, float input_max,
     int filter_width, int filter_height, int stride_width, int stride_height,
     std::initializer_list<uint8_t> expected_output_data, float output_min,
-    float output_max, std::initializer_list<int> output_dims_data,
+    float output_max, std::initializer_list<int32_t> output_dims_data,
     TfLitePadding padding, TfLiteFusedActivation activation,
     uint8_t* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -332,9 +324,7 @@ void TestMaxPoolQuantizedUInt8(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_MAX_POOL_2D, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {
@@ -349,11 +339,11 @@ void TestMaxPoolQuantizedUInt8(
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int temporaries_array_data[] = {0};
+  int32_t temporaries_array_data[] = {0};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;

@@ -16,21 +16,22 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/debug_log.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
+
 
 namespace tflite {
 namespace testing {
 
 void TestSplitTwoOutputsFloat(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<float> input_data,
-    std::initializer_list<int> axis_dims_data,
+    std::initializer_list<int32_t> axis_dims_data,
     std::initializer_list<int32_t> axis_data,
-    std::initializer_list<int> output1_dims_data,
+    std::initializer_list<int32_t> output1_dims_data,
     std::initializer_list<float> expected_output1_data,
-    std::initializer_list<int> output2_dims_data,
+    std::initializer_list<int32_t> output2_dims_data,
     std::initializer_list<float> expected_output2_data, float* output1_data,
     float* output2_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -63,9 +64,7 @@ void TestSplitTwoOutputsFloat(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SPLIT, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SPLIT();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSplitParams builtin_data = {
@@ -112,17 +111,17 @@ void TestSplitTwoOutputsFloat(
 }
 
 void TestSplitFourOutputsFloat(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<float> input_data,
-    std::initializer_list<int> axis_dims_data,
+    std::initializer_list<int32_t> axis_dims_data,
     std::initializer_list<int32_t> axis_data,
-    std::initializer_list<int> output1_dims_data,
+    std::initializer_list<int32_t> output1_dims_data,
     std::initializer_list<float> expected_output1_data,
-    std::initializer_list<int> output2_dims_data,
+    std::initializer_list<int32_t> output2_dims_data,
     std::initializer_list<float> expected_output2_data,
-    std::initializer_list<int> output3_dims_data,
+    std::initializer_list<int32_t> output3_dims_data,
     std::initializer_list<float> expected_output3_data,
-    std::initializer_list<int> output4_dims_data,
+    std::initializer_list<int32_t> output4_dims_data,
     std::initializer_list<float> expected_output4_data, float* output1_data,
     float* output2_data, float* output3_data, float* output4_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -166,9 +165,7 @@ void TestSplitFourOutputsFloat(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SPLIT, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SPLIT();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSplitParams builtin_data = {
@@ -222,13 +219,13 @@ void TestSplitFourOutputsFloat(
 }
 
 void TestSplitTwoOutputsQuantized(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<uint8_t> input_data,
-    std::initializer_list<int> axis_dims_data,
+    std::initializer_list<int32_t> axis_dims_data,
     std::initializer_list<int32_t> axis_data,
-    std::initializer_list<int> output1_dims_data,
+    std::initializer_list<int32_t> output1_dims_data,
     std::initializer_list<uint8_t> expected_output1_data,
-    std::initializer_list<int> output2_dims_data,
+    std::initializer_list<int32_t> output2_dims_data,
     std::initializer_list<uint8_t> expected_output2_data, uint8_t* output1_data,
     uint8_t* output2_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -264,9 +261,7 @@ void TestSplitTwoOutputsQuantized(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SPLIT, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SPLIT();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSplitParams builtin_data = {
@@ -311,13 +306,13 @@ void TestSplitTwoOutputsQuantized(
 }
 
 void TestSplitTwoOutputsQuantized32(
-    std::initializer_list<int> input_dims_data,
+    std::initializer_list<int32_t> input_dims_data,
     std::initializer_list<int32_t> input_data,
-    std::initializer_list<int> axis_dims_data,
+    std::initializer_list<int32_t> axis_dims_data,
     std::initializer_list<int32_t> axis_data,
-    std::initializer_list<int> output1_dims_data,
+    std::initializer_list<int32_t> output1_dims_data,
     std::initializer_list<int32_t> expected_output1_data,
-    std::initializer_list<int> output2_dims_data,
+    std::initializer_list<int32_t> output2_dims_data,
     std::initializer_list<int32_t> expected_output2_data, int32_t* output1_data,
     int32_t* output2_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -353,9 +348,7 @@ void TestSplitTwoOutputsQuantized32(
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SPLIT, /* version= */ 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SPLIT();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSplitParams builtin_data = {
