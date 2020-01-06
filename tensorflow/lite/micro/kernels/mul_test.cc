@@ -15,27 +15,25 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestMulFloat(std::initializer_list<int> input1_dims_data,
+void TestMulFloat(std::initializer_list<int32_t> input1_dims_data,
                   std::initializer_list<float> input1_data,
-                  std::initializer_list<int> input2_dims_data,
+                  std::initializer_list<int32_t> input2_dims_data,
                   std::initializer_list<float> input2_data,
-                  std::initializer_list<int> output_dims_data,
+                  std::initializer_list<int32_t> output_dims_data,
                   std::initializer_list<float> expected_output_data,
                   float* output_data, TfLiteFusedActivation activation) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
   TfLiteIntArray* input2_dims = IntArrayFromInitializer(input2_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInitializer(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);
-
-  ::tflite::ops::micro::AllOpsResolver resolver;
 
   constexpr int inputs_size = 2;
   constexpr int outputs_size = 1;
@@ -48,8 +46,8 @@ void TestMulFloat(std::initializer_list<int> input1_dims_data,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_MUL, 1);
+
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_MUL();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -64,9 +62,9 @@ void TestMulFloat(std::initializer_list<int> input1_dims_data,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
   TfLiteNode node;
@@ -92,12 +90,12 @@ void TestMulFloat(std::initializer_list<int> input1_dims_data,
 }
 
 template <typename T>
-void TestMulQuantized(std::initializer_list<int> input1_dims_data,
+void TestMulQuantized(std::initializer_list<int32_t> input1_dims_data,
                       std::initializer_list<T> input1_data,
-                      std::initializer_list<int> input2_dims_data,
+                      std::initializer_list<int32_t> input2_dims_data,
                       std::initializer_list<T> input2_data,
                       const float input_min, const float input_max,
-                      std::initializer_list<int> output_dims_data,
+                      std::initializer_list<int32_t> output_dims_data,
                       const float output_min, const float output_max,
                       std::initializer_list<T> expected_output_data,
                       T* output_data, TfLiteFusedActivation activation,
@@ -106,8 +104,6 @@ void TestMulQuantized(std::initializer_list<int> input1_dims_data,
   TfLiteIntArray* input2_dims = IntArrayFromInitializer(input2_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInitializer(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);
-
-  ::tflite::ops::micro::AllOpsResolver resolver;
 
   constexpr int inputs_size = 2;
   constexpr int outputs_size = 1;
@@ -123,8 +119,7 @@ void TestMulQuantized(std::initializer_list<int> input1_dims_data,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_MUL, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_MUL();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -139,9 +134,9 @@ void TestMulQuantized(std::initializer_list<int> input1_dims_data,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
   TfLiteNode node;

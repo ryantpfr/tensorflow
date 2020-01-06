@@ -15,16 +15,16 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
-#include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
+#include "tensorflow/lite/micro/testing/micro_test.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
-void TestFloor(const int* input_dims_data, const float* input_data,
-               const float* expected_output_data, const int* output_dims_data,
+void TestFloor(const int32_t* input_dims_data, const float* input_data,
+               const float* expected_output_data, const int32_t* output_dims_data,
                float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
@@ -38,16 +38,15 @@ void TestFloor(const int* input_dims_data, const float* input_data,
   };
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_FLOOR, 1);
+
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_FLOOR();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
-  int inputs_array_data[] = {1, 0};
+  int32_t inputs_array_data[] = {1, 0};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 1};
+  int32_t outputs_array_data[] = {1, 1};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
-  int intermediates_array_data[] = {0};
+  int32_t intermediates_array_data[] = {0};
   TfLiteIntArray* temporaries_array =
       IntArrayFromInts(intermediates_array_data);
   TfLiteNode node;
@@ -73,7 +72,7 @@ void TestFloor(const int* input_dims_data, const float* input_data,
 TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(FloorOpSingleDimFloat32) {
-  const int dims[] = {1, 2};
+  const int32_t dims[] = {1, 2};
   const float input[] = {8.5f, 0.0f};
   const float golden[] = {8, 0};
   float output_data[2];
@@ -81,7 +80,7 @@ TF_LITE_MICRO_TEST(FloorOpSingleDimFloat32) {
 }
 
 TF_LITE_MICRO_TEST(FloorOpMultiDimFloat32) {
-  const int dims[] = {4, 2, 1, 1, 5};
+  const int32_t dims[] = {4, 2, 1, 1, 5};
   const float input[] = {0.0001f,  8.0001f,  0.9999f,  9.9999f,  0.5f,
                          -0.0001f, -8.0001f, -0.9999f, -9.9999f, -0.5f};
   const float golden[] = {0.0f,  8.0f,  0.0f,  9.0f,   0.0f,
