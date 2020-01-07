@@ -75,7 +75,7 @@ TF_LITE_MICRO_TEST(TestInterpreter) {
   TF_LITE_MICRO_EXPECT_NE(nullptr, model);
   tflite::MockOpResolver mock_resolver;
   constexpr size_t allocator_buffer_size = 1024;
-  uint8_t allocator_buffer[allocator_buffer_size];
+  static uint8_t allocator_buffer[allocator_buffer_size];
   tflite::MicroInterpreter interpreter(model, mock_resolver, allocator_buffer,
                                        allocator_buffer_size,
                                        micro_test::reporter);

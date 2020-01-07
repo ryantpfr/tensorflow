@@ -20,13 +20,14 @@ limitations under the License.
 #include "tensorflow/lite/micro/test_helpers.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 
+constexpr size_t arena_size = 1024;
+uint8_t arena[arena_size];
+
 TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(TestInitializeRuntimeTensor) {
   const tflite::Model* model = tflite::testing::GetMockModel();
   TfLiteContext context;
-  constexpr size_t arena_size = 1024;
-  uint8_t arena[arena_size];
   tflite::MicroAllocator allocator(&context, model, arena, arena_size,
                                    micro_test::reporter);
 
@@ -48,8 +49,6 @@ TF_LITE_MICRO_TEST(TestInitializeRuntimeTensor) {
 TF_LITE_MICRO_TEST(TestMissingQuantization) {
   const tflite::Model* model = tflite::testing::GetMockModel();
   TfLiteContext context;
-  constexpr size_t arena_size = 1024;
-  uint8_t arena[arena_size];
   tflite::MicroAllocator allocator(&context, model, arena, arena_size,
                                    micro_test::reporter);
 
@@ -72,8 +71,6 @@ TF_LITE_MICRO_TEST(TestMissingQuantization) {
 TF_LITE_MICRO_TEST(TestFinishTensorAllocation) {
   const tflite::Model* model = tflite::testing::GetMockModel();
   TfLiteContext context;
-  constexpr size_t arena_size = 1024;
-  uint8_t arena[arena_size];
   tflite::MicroAllocator allocator(&context, model, arena, arena_size,
                                    micro_test::reporter);
   TF_LITE_MICRO_EXPECT_EQ(3, context.tensors_size);
