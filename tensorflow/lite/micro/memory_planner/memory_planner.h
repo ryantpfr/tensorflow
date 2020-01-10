@@ -54,16 +54,16 @@ class MemoryPlanner {
   // this method will be used as the buffer_index argument to
   // GetOffsetForBuffer().
   virtual TfLiteStatus AddBuffer(tflite::ErrorReporter* error_reporter,
-                                 int size, int first_time_used,
+                                 size_t size, int first_time_used,
                                  int last_time_used) = 0;
 
   // The largest contguous block of memory that's needed to hold the layout.
-  virtual int GetMaximumMemorySize() = 0;
+  virtual size_t GetMaximumMemorySize() = 0;
   // How many buffers have been added to the planner.
   virtual int GetBufferCount() = 0;
   // Calculated layout offset for the N-th buffer added to the planner.
   virtual TfLiteStatus GetOffsetForBuffer(tflite::ErrorReporter* error_reporter,
-                                          int buffer_index, int* offset) = 0;
+                                          int buffer_index, size_t* offset) = 0;
 };
 
 }  // namespace tflite

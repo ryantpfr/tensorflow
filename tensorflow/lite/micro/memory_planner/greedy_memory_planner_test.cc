@@ -34,7 +34,7 @@ TF_LITE_MICRO_TEST(TestReverseSortInPlace) {
   tflite::MicroErrorReporter micro_error_reporter;
   tflite::ErrorReporter* error_reporter = &micro_error_reporter;
 
-  constexpr int a_size = 10;
+  constexpr size_t a_size = 10;
   int a_values[a_size] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
   int a_ids[a_size] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   const int a_expected_values[a_size] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -45,7 +45,7 @@ TF_LITE_MICRO_TEST(TestReverseSortInPlace) {
     TF_LITE_MICRO_EXPECT_EQ(a_expected_ids[i], a_ids[i]);
   }
 
-  constexpr int b_size = 10;
+  constexpr size_t b_size = 10;
   int b_values[b_size] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
   int b_ids[b_size] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   const int b_expected_values[b_size] = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -104,7 +104,7 @@ TF_LITE_MICRO_TEST(TestGreedyBasics) {
 
   TF_LITE_MICRO_EXPECT_EQ(20, planner.GetMaximumMemorySize());
 
-  int offset = -1;
+  size_t offset = -1;
   TF_LITE_MICRO_EXPECT_EQ(
       kTfLiteOk, planner.GetOffsetForBuffer(error_reporter, 0, &offset));
   TF_LITE_MICRO_EXPECT_EQ(0, offset);
@@ -130,7 +130,7 @@ TF_LITE_MICRO_TEST(TestGreedyMedium) {
   TF_LITE_MICRO_EXPECT_EQ(kTfLiteOk,
                           planner.AddBuffer(error_reporter, 50, 0, 1));
 
-  int offset = -1;
+  size_t offset = -1;
   TF_LITE_MICRO_EXPECT_EQ(
       kTfLiteOk, planner.GetOffsetForBuffer(error_reporter, 0, &offset));
   TF_LITE_MICRO_EXPECT_EQ(50, offset);
