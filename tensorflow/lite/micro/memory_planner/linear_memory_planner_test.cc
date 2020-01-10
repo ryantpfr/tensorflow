@@ -30,7 +30,7 @@ TF_LITE_MICRO_TEST(TestBasics) {
                           planner.AddBuffer(error_reporter, 20, 1, 2));
   TF_LITE_MICRO_EXPECT_EQ(30, planner.GetMaximumMemorySize());
 
-  int offset = -1;
+  size_t offset = -1;
   TF_LITE_MICRO_EXPECT_EQ(
       kTfLiteOk, planner.GetOffsetForBuffer(error_reporter, 0, &offset));
   TF_LITE_MICRO_EXPECT_EQ(0, offset);
@@ -48,7 +48,7 @@ TF_LITE_MICRO_TEST(TestErrorHandling) {
   TF_LITE_MICRO_EXPECT_EQ(kTfLiteOk,
                           planner.AddBuffer(error_reporter, 10, 0, 1));
 
-  int offset = -1;
+  size_t offset = -1;
   TF_LITE_MICRO_EXPECT_EQ(
       kTfLiteError, planner.GetOffsetForBuffer(error_reporter, 1, &offset));
 }

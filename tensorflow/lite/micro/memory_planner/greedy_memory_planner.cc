@@ -39,7 +39,7 @@ void ReverseSortInPlace(int* values, int* ids, int size) {
 }
 
 GreedyMemoryPlanner::GreedyMemoryPlanner(unsigned char* scratch_buffer,
-                                         int scratch_buffer_size)
+                                         size_t scratch_buffer_size)
     : buffer_count_(0), need_to_calculate_offsets_(true) {
   const int per_buffer_size = sizeof(BufferRequirements) +  // requirements_
                               sizeof(int) +  // buffer_sizes_sorted_by_size_
@@ -62,7 +62,7 @@ GreedyMemoryPlanner::GreedyMemoryPlanner(unsigned char* scratch_buffer,
   buffers_sorted_by_offset_ = reinterpret_cast<ListEntry*>(next_free);
   next_free += sizeof(ListEntry) * max_buffer_count_;
 
-  buffer_offsets_ = reinterpret_cast<int*>(next_free);
+  buffer_offsets_ = reinterpret_cast<size_t*>(next_free);
 }
 
 GreedyMemoryPlanner::~GreedyMemoryPlanner() {
@@ -70,7 +70,7 @@ GreedyMemoryPlanner::~GreedyMemoryPlanner() {
 }
 
 TfLiteStatus GreedyMemoryPlanner::AddBuffer(
-    tflite::ErrorReporter* error_reporter, int size, int first_time_used,
+    tflite::ErrorReporter* error_reporter, size_t size, int first_time_used,
     int last_time_used) {
   if (buffer_count_ >= max_buffer_count_) {
     error_reporter->Report("Too many buffers (max is %d)", max_buffer_count_);
@@ -240,17 +240,17 @@ void GreedyMemoryPlanner::CalculateOffsetsIfNeeded() {
   }
 }
 
-int GreedyMemoryPlanner::GetMaximumMemorySize() {
+size_t GreedyMemoryPlanner::GetMaximumMemorySize() {
   CalculateOffsetsIfNeeded();
   if (buffer_count_ == 0) {
     return 0;
   }
   ListEntry* entry = &buffers_sorted_by_offset_[0];
-  int max_size = 0;
+  size_t max_size = 0;
   while (entry) {
     BufferRequirements* requirements =
         &requirements_[entry->requirements_index];
-    const int current_size = entry->offset + requirements->size;
+    const size_t current_size = entry->offset + requirements->size;
     if (current_size > max_size) {
       max_size = current_size;
     }
@@ -334,7 +334,7 @@ void GreedyMemoryPlanner::PrintMemoryPlan(ErrorReporter* error_reporter) {
 int GreedyMemoryPlanner::GetBufferCount() { return buffer_count_; }
 
 TfLiteStatus GreedyMemoryPlanner::GetOffsetForBuffer(
-    tflite::ErrorReporter* error_reporter, int buffer_index, int* offset) {
+    tflite::ErrorReporter* error_reporter, int buffer_index, size_t* offset) {
   CalculateOffsetsIfNeeded();
   if ((buffer_index < 0) || (buffer_index >= buffer_count_)) {
     error_reporter->Report("buffer index %d is outside range 0 to %d",

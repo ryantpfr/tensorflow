@@ -296,7 +296,7 @@ TfLiteStatus MicroAllocator::FinishTensorAllocation() {
   const size_t alignment_loss = (aligned_arena - arena_);
 
   // Remaining arena size that memory planner can use for calculating offsets.
-  int remaining_arena_size =
+  size_t remaining_arena_size =
       arena_size_ - (tmp_allocator.GetDataSize() + alignment_loss);
   GreedyMemoryPlanner planner(aligned_arena, remaining_arena_size);
 
@@ -335,7 +335,7 @@ TfLiteStatus MicroAllocator::FinishTensorAllocation() {
   for (size_t i = 0; i < tensors_->size(); ++i) {
     TensorInfo* current = &tensor_info[i];
     if (current->needs_allocating) {
-      int offset;
+      size_t offset;
       TF_LITE_ENSURE_STATUS(
           planner.GetOffsetForBuffer(error_reporter_, planner_index, &offset));
       current->runtime_tensor->data.uint8 = aligned_arena + offset;

@@ -51,16 +51,16 @@ class GreedyMemoryPlanner : public MemoryPlanner {
   // calling AddBuffer(). The memory can be reused once you're done with the
   // planner, as long as you copy the calculated offsets to another location.
   // Each buffer requires about 36 bytes of scratch.
-  GreedyMemoryPlanner(unsigned char* scratch_buffer, int scratch_buffer_size);
+  GreedyMemoryPlanner(unsigned char* scratch_buffer, size_t scratch_buffer_size);
   ~GreedyMemoryPlanner() override;
 
   // Record details of a buffer we want to place.
-  TfLiteStatus AddBuffer(ErrorReporter* error_reporter, int size,
+  TfLiteStatus AddBuffer(ErrorReporter* error_reporter, size_t size,
                          int first_time_used, int last_time_used) override;
 
   // Returns the high-water mark of used memory. This is the minimum size of a
   // memory arena you'd need to allocate to hold these buffers.
-  int GetMaximumMemorySize() override;
+  size_t GetMaximumMemorySize() override;
 
   // How many buffers have been recorded.
   int GetBufferCount() override;
@@ -69,7 +69,7 @@ class GreedyMemoryPlanner : public MemoryPlanner {
   // This information is stored in the memory arena itself, so once the arena
   // is used for inference, it will be overwritten.
   TfLiteStatus GetOffsetForBuffer(ErrorReporter* error_reporter,
-                                  int buffer_index, int* offset) override;
+                                  int buffer_index, size_t* offset) override;
 
   // Prints an ascii-art diagram of the buffer layout plan.
   void PrintMemoryPlan(ErrorReporter* error_reporter);
@@ -80,7 +80,7 @@ class GreedyMemoryPlanner : public MemoryPlanner {
 
   // Used to store a list of buffers ordered by their offset.
   struct ListEntry {
-    int offset;
+    size_t offset;
     int requirements_index;
     int next_entry_index;
   };
@@ -108,7 +108,7 @@ class GreedyMemoryPlanner : public MemoryPlanner {
 
   // Records the client-provided information about each buffer.
   struct BufferRequirements {
-    int size;
+    size_t size;
     int first_time_used;
     int last_time_used;
   };
@@ -121,7 +121,7 @@ class GreedyMemoryPlanner : public MemoryPlanner {
   int next_free_entry_;
 
   // Stores the outcome of the plan, the location of each buffer in the arena.
-  int* buffer_offsets_;
+  size_t* buffer_offsets_;
 
   // Whether buffers have been added since the last plan was calculated.
   bool need_to_calculate_offsets_;
