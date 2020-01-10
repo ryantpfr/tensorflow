@@ -84,7 +84,8 @@ MICROLITE_LIB_NAME := libtensorflow-microlite.a
 MICROLITE_TEST_SRCS := \
 $(wildcard tensorflow/lite/micro/*test.cc) \
 $(wildcard tensorflow/lite/micro/kernels/*test.cc) \
-$(wildcard tensorflow/lite/micro/memory_planner/*test.cc)
+$(wildcard tensorflow/lite/micro/memory_planner/*test.cc) \
+tensoflow/lite/micro/testing/initialize_device.cc
 
 MICROLITE_TEST_HDRS := \
 $(wildcard tensorflow/lite/micro/testing/*.h)
