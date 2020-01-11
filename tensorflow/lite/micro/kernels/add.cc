@@ -84,7 +84,7 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteAddParams* params,
         input2->params.scale / twice_max_input_scale;
     const double real_output_multiplier =
         twice_max_input_scale /
-        ((1 << data->left_shift) * output->params.scale);
+        ((static_cast<int32_t>(1) << data->left_shift) * output->params.scale);
 
     QuantizeMultiplierSmallerThanOneExp(
         real_input1_multiplier, &data->input1_multiplier, &data->input1_shift);

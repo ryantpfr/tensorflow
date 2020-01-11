@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/kernels/internal/tensor_ctypes.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/micro_utils.h"
 #include "tensorflow/lite/micro/test_helpers.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
@@ -34,7 +34,7 @@ template <typename T>
 void TestReshapeImpl(TfLiteTensor* input_tensor, TfLiteTensor* shape_tensor,
                      TfLiteTensor* output_tensor,
                      std::initializer_list<T> expected_output,
-                     std::initializer_list<int> expected_dims,
+                     std::initializer_list<int32_t> expected_dims,
                      bool expect_failure) {
   TfLiteContext context;
   TfLiteTensor tensors[3];
@@ -60,10 +60,7 @@ void TestReshapeImpl(TfLiteTensor* input_tensor, TfLiteTensor* shape_tensor,
     node.outputs = IntArrayFromInitializer({1, 2});
   }
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_RESHAPE, 1);
-  TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_RESHAPE();
 
   void* user_data = nullptr;
   node.temporaries = nullptr;
@@ -100,13 +97,13 @@ void TestReshapeImpl(TfLiteTensor* input_tensor, TfLiteTensor* shape_tensor,
 }
 
 template <typename T = float, TfLiteType tensor_input_type = kTfLiteFloat32>
-void TestReshape(std::initializer_list<int> input_dims_data,
+void TestReshape(std::initializer_list<int32_t> input_dims_data,
                  std::initializer_list<T> input_data,
-                 std::initializer_list<int> shape_dims_data,
+                 std::initializer_list<int32_t> shape_dims_data,
                  std::initializer_list<int32_t> shape_data,
-                 int* output_dims_data, uint8_t* output_data_raw,
+                 int32_t* output_dims_data, uint8_t* output_data_raw,
                  std::initializer_list<T> expected_output,
-                 std::initializer_list<int> expected_dims,
+                 std::initializer_list<int32_t> expected_dims,
                  bool expect_failure = false) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
@@ -139,7 +136,7 @@ TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(MismatchedDimensions) {
   uint8_t output_data[32];
-  int output_dims[3] = {2, 2, 1};
+  int32_t output_dims[3] = {2, 2, 1};
   TEST_RESHAPE({4, 1, 2, 4, 1},  // input_dims
                {3},              // input_data
                {1, 2},           // shape_dims
@@ -153,7 +150,7 @@ TF_LITE_MICRO_TEST(MismatchedDimensions) {
 
 TF_LITE_MICRO_TEST(TooManyDimensions) {
   uint8_t output_data[32];
-  int output_dims[10] = {9, 1, 1, 1, 1, 1, 1, 1, 1, 2};
+  int32_t output_dims[10] = {9, 1, 1, 1, 1, 1, 1, 1, 1, 2};
   TEST_RESHAPE({9, 1, 1, 2, 1, 1, 1, 1, 1, 1},  // input_dims
                {3, 2},                          // input_data
                {1, 9},                          // shape_dims
@@ -168,7 +165,7 @@ TF_LITE_MICRO_TEST(TooManyDimensions) {
 // TfLiteReshapeParams.
 TF_LITE_MICRO_TEST(TooManySpecialDimensions) {
   uint8_t output_data[32];
-  int output_dims[5] = {4, -1, -1, 2, 4};
+  int32_t output_dims[5] = {4, -1, -1, 2, 4};
   TEST_RESHAPE({4, 1, 2, 4, 1},  // input_dims
                {3},              // input_data
                {1, 4},           // shape_dims
@@ -190,7 +187,7 @@ TF_LITE_MICRO_TEST(InvalidShape) {
   auto input_data = {3.0f};
   auto input_tensor = CreateFloatTensor(input_data, input_dims, "input_tensor");
   float output_data[4];
-  int output_dims_data[6] = {2, 2, 1, 2, 2, 1};
+  int32_t output_dims_data[6] = {2, 2, 1, 2, 2, 1};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   auto output_tensor =
       CreateFloatTensor(output_data, output_dims, "input_tensor");
@@ -205,7 +202,7 @@ TF_LITE_MICRO_TEST(InvalidShape) {
 
 TF_LITE_MICRO_TEST(RegularShapes) {
   uint8_t output_data[32];
-  int output_dims[4] = {3, 2, 2, 2};
+  int32_t output_dims[4] = {3, 2, 2, 2};
   TEST_RESHAPE({4, 1, 2, 4, 1},                        // input_dims
                {1, 2, 3, 4, 5, 6, 7, 8},               // input_data
                {1, 3},                                 // shape_dims
@@ -218,7 +215,7 @@ TF_LITE_MICRO_TEST(RegularShapes) {
 
 TF_LITE_MICRO_TEST(WithStretchDimension) {
   uint8_t output_data[32];
-  int output_dims[4] = {3, 2, 1, -1};
+  int32_t output_dims[4] = {3, 2, 1, -1};
   TEST_RESHAPE({4, 1, 2, 4, 1},                        // input_dims
                {1, 2, 3, 4, 5, 6, 7, 8},               // input_data
                {1, 3},                                 // shape_dims
@@ -233,7 +230,7 @@ TF_LITE_MICRO_TEST(WithStretchDimension) {
 // input and output.
 TF_LITE_MICRO_TEST(ScalarOutput) {
   uint8_t output_data[4];
-  int output_dims[1] = {0};
+  int32_t output_dims[1] = {0};
   TEST_RESHAPE({1, 1},            // input_dims
                {3},               // input_data
                {0},               // shape_dims
@@ -254,7 +251,7 @@ TF_LITE_MICRO_TEST(LegacyScalarOutput) {
   auto input_data = {3.0f};
   auto input_tensor = CreateFloatTensor(input_data, input_dims, "input_tensor");
   float output_data[1];
-  int output_dims_data[2] = {1, 0};
+  int32_t output_dims_data[2] = {1, 0};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   auto output_tensor =
       CreateFloatTensor(output_data, output_dims, "input_tensor");

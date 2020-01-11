@@ -40,6 +40,7 @@
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.OTHER_FLAGS.1871838461" name="Miscellaneous flags" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.OTHER_FLAGS" valueType="stringList">
 									<listOptionValue builtIn="false" value="-mlarge"/>
+									<listOptionValue builtIn="false" value="-fno-inline"/>
 									<listOptionValue builtIn="false" value="-lm"/>
 									<listOptionValue builtIn="false" value="-mdata-region=none"/>
 									<listOptionValue builtIn="false" value="-mcode-region=upper"/>
