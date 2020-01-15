@@ -166,7 +166,7 @@ void SignedSymmetricPerChannelQuantize(const float* values,
     for (int i = 0; i < per_channel_size; i++) {
       int idx = channel * channel_stride + i * stride;
       const int32_t quantized_value =
-          static_cast<int32_t>(roundf(values[idx] / scaling_factors[channel]));
+          static_cast<int32_t>(lroundf(values[idx] / scaling_factors[channel]));
       // Clamp: just in case some odd numeric offset.
       quantized_values[idx] = fminf(
           kSymmetricInt8Scale, fmaxf(-kSymmetricInt8Scale, quantized_value));
@@ -187,7 +187,7 @@ void SignedSymmetricQuantize(const float* values, TfLiteIntArray* dims,
   *scaling_factor = fmaxf(fabs(min), fabs(max)) / kSymmetricInt8Scale;
   for (int i = 0; i < input_size; i++) {
     const int32_t quantized_value =
-        static_cast<int32_t>(roundf(values[i] / *scaling_factor));
+        static_cast<int32_t>(lroundf(values[i] / *scaling_factor));
     // Clamp: just in case some odd numeric offset.
     quantized_values[i] = fminf(kSymmetricInt8Scale,
                                 fmaxf(-kSymmetricInt8Scale, quantized_value));
@@ -207,7 +207,7 @@ void SignedSymmetricQuantize(const float* values, TfLiteIntArray* dims,
   *scaling_factor = fmaxf(fabs(min), fabs(max)) / kSymmetricInt16Scale;
   for (int i = 0; i < input_size; i++) {
     const int32_t quantized_value =
-        static_cast<int32_t>(roundf(values[i] / *scaling_factor));
+        static_cast<int32_t>(lroundf(values[i] / *scaling_factor));
     // Clamp: just in case some odd numeric offset.
     quantized_values[i] = fminf(kSymmetricInt16Scale,
                                 fmaxf(-kSymmetricInt16Scale, quantized_value));
@@ -228,7 +228,7 @@ void SignedSymmetricQuantize(const float* values, TfLiteIntArray* dims,
   *scaling_factor = fmaxf(fabs(min), fabs(max)) / kSymmetricInt32Scale;
   for (int i = 0; i < input_size; i++) {
     const int32_t quantized_value =
-        static_cast<int32_t>(roundf(values[i] / *scaling_factor));
+        static_cast<int32_t>(lroundf(values[i] / *scaling_factor));
     // Clamp: just in case some odd numeric offset.
     quantized_values[i] = fminf(kSymmetricInt32Scale,
                                 fmaxf(-kSymmetricInt32Scale, quantized_value));
