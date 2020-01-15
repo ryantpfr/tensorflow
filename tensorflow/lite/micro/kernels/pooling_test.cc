@@ -254,7 +254,7 @@ void TestMaxPoolFloat(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_MAX_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {
@@ -324,7 +324,7 @@ void TestMaxPoolQuantizedUInt8(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_MAX_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {

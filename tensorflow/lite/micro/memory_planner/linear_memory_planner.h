@@ -39,7 +39,7 @@ class LinearMemoryPlanner : public MemoryPlanner {
   static constexpr int kMaxBufferCount = 1024;
   size_t buffer_offsets_[kMaxBufferCount];
   int current_buffer_count_;
-  int next_free_offset_;
+  size_t next_free_offset_;
 };
 
 }  // namespace tflite

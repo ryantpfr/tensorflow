@@ -17,7 +17,7 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
 
@@ -130,9 +130,7 @@ void ValidateSVDFGoldens(const int batch_size, const int num_units,
   TfLiteContext context;
   PopulateContext(tensors, tensor_count, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SVDF, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SVDF();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSVDFParams params;
@@ -148,16 +146,16 @@ void ValidateSVDFGoldens(const int batch_size, const int num_units,
   // TODO(kreeger): Use input tensor as variable until scratch tensor allocation
   // has been implemented (b/132070898)
   // int inputs_array_data[] = {5, 0, 1, 2, kTfLiteOptionalTensor, 3};
-  int inputs_array_data[] = {6, 0, 1, 2, kTfLiteOptionalTensor, 3, 5};
+  int32_t inputs_array_data[] = {6, 0, 1, 2, kTfLiteOptionalTensor, 3, 5};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
 
-  int outputs_array_data[] = {1, 4};
+  int32_t outputs_array_data[] = {1, 4};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
-  int temporaries_array_data[] = {1, 5};
+  int32_t temporaries_array_data[] = {1, 5};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
-  int hybrid_temporaries_array_data[] = {4, 5, 6, 7, 8};
+  int32_t hybrid_temporaries_array_data[] = {4, 5, 6, 7, 8};
   TfLiteIntArray* hybrid_temporaries_array =
       IntArrayFromInts(hybrid_temporaries_array_data);
 
@@ -211,9 +209,7 @@ void ValidateIntegerSVDFGoldens(const int batch_size, const int num_units,
   TfLiteContext context;
   PopulateContext(tensors, tensor_count, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_SVDF, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_SVDF();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSVDFParams params;
@@ -228,13 +224,13 @@ void ValidateIntegerSVDFGoldens(const int batch_size, const int num_units,
   // TODO(b/132070898): Use input tensor as variable until scratch tensor
   // allocation has been implemented. int inputs_array_data[] = {5, 0, 1, 2, 3,
   // 4};
-  int inputs_array_data[] = {8, 0, 1, 2, 3, 4, 6, 7, 8};
+  int32_t inputs_array_data[] = {8, 0, 1, 2, 3, 4, 6, 7, 8};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
 
-  int outputs_array_data[] = {1, 5};
+  int32_t outputs_array_data[] = {1, 5};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
-  int temporaries_array_data[] = {2, 7, 8};
+  int32_t temporaries_array_data[] = {2, 7, 8};
   TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
@@ -286,26 +282,26 @@ void TestSVDF(const int batch_size, const int num_units, const int input_size,
               float tolerance = 1e-5f) {
   const int num_filters = num_units * rank;
 
-  const int input_dims_arg[] = {2, batch_size, input_size};
+  const int32_t input_dims_arg[] = {2, batch_size, input_size};
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_arg);
 
-  const int weights_feature_dims_args[] = {2, num_filters, input_size};
+  const int32_t weights_feature_dims_args[] = {2, num_filters, input_size};
   TfLiteIntArray* weights_feature_dims =
       IntArrayFromInts(weights_feature_dims_args);
 
-  const int weights_time_dims_args[] = {2, num_filters, memory_size};
+  const int32_t weights_time_dims_args[] = {2, num_filters, memory_size};
   TfLiteIntArray* weights_time_dims = IntArrayFromInts(weights_time_dims_args);
 
-  const int activation_state_dims_args[] = {2, batch_size,
+  const int32_t activation_state_dims_args[] = {2, batch_size,
                                             memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
   // Scratch output is the same shape as output:
-  const int scratch_dims_args[] = {2, batch_size, num_filters};
+  const int32_t scratch_dims_args[] = {2, batch_size, num_filters};
   TfLiteIntArray* scratch_dims = IntArrayFromInts(scratch_dims_args);
 
-  const int output_dims_args[] = {2, batch_size, num_units};
+  const int32_t output_dims_args[] = {2, batch_size, num_units};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_args);
 
   const int tensor_count = 6;  // 4 inputs, 1 output, 1 scratch
@@ -338,30 +334,30 @@ inline void TestHybridSVDFInt8(
     float tolerance = 1e-5f) {
   const int num_filters = num_units * rank;
 
-  const int input_dims_arg[] = {2, batch_size, input_size};
+  const int32_t input_dims_arg[] = {2, batch_size, input_size};
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_arg);
 
-  const int weights_feature_dims_args[] = {2, num_filters, input_size};
+  const int32_t weights_feature_dims_args[] = {2, num_filters, input_size};
   TfLiteIntArray* weights_feature_dims =
       IntArrayFromInts(weights_feature_dims_args);
 
-  const int weights_time_dims_args[] = {2, num_filters, memory_size};
+  const int32_t weights_time_dims_args[] = {2, num_filters, memory_size};
   TfLiteIntArray* weights_time_dims = IntArrayFromInts(weights_time_dims_args);
 
-  const int activation_state_dims_args[] = {2, batch_size,
+  const int32_t activation_state_dims_args[] = {2, batch_size,
                                             memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
   // Scratch output is the same shape as output:
-  const int scratch_dims_args[] = {2, batch_size, num_filters};
+  const int32_t scratch_dims_args[] = {2, batch_size, num_filters};
   TfLiteIntArray* scratch_dims = IntArrayFromInts(scratch_dims_args);
 
-  const int scratch_scaling_factor_dims_args[] = {1, batch_size};
+  const int32_t scratch_scaling_factor_dims_args[] = {1, batch_size};
   TfLiteIntArray* scratch_scaling_factors_dims =
       IntArrayFromInts(scratch_scaling_factor_dims_args);
 
-  const int output_dims_args[] = {2, batch_size, num_units};
+  const int32_t output_dims_args[] = {2, batch_size, num_units};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_args);
 
   const int tensor_count = 9;  // 4 inputs, 1 output, 4 scratch
@@ -402,30 +398,30 @@ inline void TestHybridSVDFUint8(
     float tolerance = 1e-5f) {
   const int num_filters = num_units * rank;
 
-  const int input_dims_arg[] = {2, batch_size, input_size};
+  const int32_t input_dims_arg[] = {2, batch_size, input_size};
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_arg);
 
-  const int weights_feature_dims_args[] = {2, num_filters, input_size};
+  const int32_t weights_feature_dims_args[] = {2, num_filters, input_size};
   TfLiteIntArray* weights_feature_dims =
       IntArrayFromInts(weights_feature_dims_args);
 
-  const int weights_time_dims_args[] = {2, num_filters, memory_size};
+  const int32_t weights_time_dims_args[] = {2, num_filters, memory_size};
   TfLiteIntArray* weights_time_dims = IntArrayFromInts(weights_time_dims_args);
 
-  const int activation_state_dims_args[] = {2, batch_size,
+  const int32_t activation_state_dims_args[] = {2, batch_size,
                                             memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
   // Scratch output is the same shape as output:
-  const int scratch_dims_args[] = {2, batch_size, num_filters};
+  const int32_t scratch_dims_args[] = {2, batch_size, num_filters};
   TfLiteIntArray* scratch_dims = IntArrayFromInts(scratch_dims_args);
 
-  const int scratch_scaling_factor_dims_args[] = {1, batch_size};
+  const int32_t scratch_scaling_factor_dims_args[] = {1, batch_size};
   TfLiteIntArray* scratch_scaling_factors_dims =
       IntArrayFromInts(scratch_scaling_factor_dims_args);
 
-  const int output_dims_args[] = {2, batch_size, num_units};
+  const int32_t output_dims_args[] = {2, batch_size, num_units};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_args);
 
   const int tensor_count = 9;  // 4 inputs, 1 output, 4 scratch
@@ -471,41 +467,41 @@ inline void TestIntegerSVDF(
     int golden_input_data_size, int8_t* expected_output) {
   const int num_filters = num_units * rank;
 
-  const int input_dims_arg[] = {2, batch_size, input_size};
+  const int32_t input_dims_arg[] = {2, batch_size, input_size};
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_arg);
 
-  const int weights_feature_dims_args[] = {2, num_filters, input_size};
+  const int32_t weights_feature_dims_args[] = {2, num_filters, input_size};
   TfLiteIntArray* weights_feature_dims =
       IntArrayFromInts(weights_feature_dims_args);
 
-  const int weights_time_dims_args[] = {2, num_filters, memory_size};
+  const int32_t weights_time_dims_args[] = {2, num_filters, memory_size};
   TfLiteIntArray* weights_time_dims = IntArrayFromInts(weights_time_dims_args);
 
-  const int bias_dims_data[] = {1, num_units};
+  const int32_t bias_dims_data[] = {1, num_units};
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
 
-  const int activation_state_dims_args[] = {2, batch_size,
+  const int32_t activation_state_dims_args[] = {2, batch_size,
                                             memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
   // Scratch output is the same shape as output:
-  const int scratch_dims_args[] = {2, batch_size, num_filters};
+  const int32_t scratch_dims_args[] = {2, batch_size, num_filters};
   TfLiteIntArray* scratch_dims = IntArrayFromInts(scratch_dims_args);
 
   // Full integer requires one more scratch tensor:
-  const int scratch_output_dims_args[] = {2, num_units, batch_size};
+  const int32_t scratch_output_dims_args[] = {2, num_units, batch_size};
   TfLiteIntArray* scratch_output_dims =
       IntArrayFromInts(scratch_output_dims_args);
 
-  const int output_dims_args[] = {2, batch_size, num_units};
+  const int32_t output_dims_args[] = {2, batch_size, num_units};
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_args);
 
   // Tensor size is higher due to workarounds in micro buffer usage
   // (b/132070898) and re-working scale calculations (b/146029510).
   const int tensor_count = 9;  // 5 inputs, 1 output, 2 scratch, 1 temp
 
-  const int effective_scale_dims_args[] = {1, 4};
+  const int32_t effective_scale_dims_args[] = {1, 4};
   int32_t effective_scale_data[] = {effective_scale_1_a, effective_scale_1_b,
                                     effective_scale_2_a, effective_scale_2_b};
   TfLiteIntArray* effective_scale_dims =

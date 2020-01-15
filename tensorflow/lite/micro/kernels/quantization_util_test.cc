@@ -218,7 +218,7 @@ TF_LITE_MICRO_TEST(QuantizationUtilTest_IntegerFrExp) {
   TF_LITE_MICRO_EXPECT_EQ(-1, shift);
 
   result = tflite::IntegerFrExp(-1.0, &shift);
-  TF_LITE_MICRO_EXPECT_NEAR(-(1 << 30), result, 1);
+  TF_LITE_MICRO_EXPECT_NEAR(-(static_cast<int32_t>(1) << 30), result, 1);
   TF_LITE_MICRO_EXPECT_EQ(1, shift);
 
   result = tflite::IntegerFrExp(123.45, &shift);
@@ -227,15 +227,15 @@ TF_LITE_MICRO_TEST(QuantizationUtilTest_IntegerFrExp) {
 
   result = tflite::IntegerFrExp(NAN, &shift);
   TF_LITE_MICRO_EXPECT_NEAR(0, result, 1);
-  TF_LITE_MICRO_EXPECT_EQ(0x7fffffff, shift);
+  TF_LITE_MICRO_EXPECT_EQ(std::numeric_limits<int>::max(), shift);
 
   result = tflite::IntegerFrExp(INFINITY, &shift);
   TF_LITE_MICRO_EXPECT_NEAR(std::numeric_limits<int64_t>::max(), result, 1);
-  TF_LITE_MICRO_EXPECT_EQ(0x7fffffff, shift);
+  TF_LITE_MICRO_EXPECT_EQ(std::numeric_limits<int>::max(), shift);
 
   result = tflite::IntegerFrExp(-INFINITY, &shift);
   TF_LITE_MICRO_EXPECT_NEAR(std::numeric_limits<int64_t>::min(), result, 1);
-  TF_LITE_MICRO_EXPECT_EQ(0x7fffffff, shift);
+  TF_LITE_MICRO_EXPECT_EQ(std::numeric_limits<int>::max(), shift);
 }
 
 TF_LITE_MICRO_TEST(QuantizationUtilTest_IntegerFrExpVersusDouble) {
@@ -264,7 +264,7 @@ TF_LITE_MICRO_TEST(QuantizationUtilTest_IntegerFrExpVersusDouble) {
   TF_LITE_MICRO_EXPECT_EQ(double_shift, -1);
 
   result = tflite::IntegerFrExp(-1.0, &shift);
-  TF_LITE_MICRO_EXPECT_NEAR(result, -(1 << 30), 1);
+  TF_LITE_MICRO_EXPECT_NEAR(result, -(static_cast<int32_t>(1) << 30), 1);
   TF_LITE_MICRO_EXPECT_EQ(shift, 1);
   double_result = std::frexp(-1.0, &double_shift);
   TF_LITE_MICRO_EXPECT_NEAR(double_result, -0.5, 1e-5);
