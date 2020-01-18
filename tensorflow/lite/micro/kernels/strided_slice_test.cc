@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
 
@@ -49,19 +49,19 @@ inline TfLiteTensor CreateTensor(std::initializer_list<input_type> data,
 
 template <typename input_type = float,
           TfLiteType tensor_input_type = kTfLiteFloat32>
-void TestStrideSlide(std::initializer_list<int> input_shape,
-                     std::initializer_list<int> begin_shape,
-                     std::initializer_list<int> end_shape,
-                     std::initializer_list<int> strides_shape, int begin_mask,
+void TestStrideSlide(std::initializer_list<int32_t> input_shape,
+                     std::initializer_list<int32_t> begin_shape,
+                     std::initializer_list<int32_t> end_shape,
+                     std::initializer_list<int32_t> strides_shape, int begin_mask,
                      int end_mask, int ellipsis_mask, int new_axis_mask,
                      int shrink_axis_mask,
                      std::initializer_list<input_type> input_data,
                      std::initializer_list<int32_t> begin_data,
                      std::initializer_list<int32_t> end_data,
                      std::initializer_list<int32_t> strides_data,
-                     std::initializer_list<int> output_shape,
+                     std::initializer_list<int32_t> output_shape,
                      input_type* output_data,
-                     std::initializer_list<int> expected_output,
+                     std::initializer_list<int32_t> expected_output,
                      bool expect_prepare_err, bool expect_invoke_err,
                      int num_invoke = 1) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_shape);
@@ -86,9 +86,7 @@ void TestStrideSlide(std::initializer_list<int> input_shape,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_STRIDED_SLICE, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_STRIDED_SLICE();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
   TfLiteStridedSliceParams builtin_data = {begin_mask, end_mask, ellipsis_mask,
                                            new_axis_mask, shrink_axis_mask};
@@ -99,9 +97,9 @@ void TestStrideSlide(std::initializer_list<int> input_shape,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {4, 0, 1, 2, 3};
+  int32_t inputs_array_data[] = {4, 0, 1, 2, 3};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 4};
+  int32_t outputs_array_data[] = {1, 4};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
   TfLiteNode node;
   node.inputs = inputs_array;
@@ -143,8 +141,9 @@ void TestStrideSlide(std::initializer_list<int> input_shape,
 }  // namespace testing
 }  // namespace tflite
 
-TF_LITE_MICRO_TESTS_BEGIN
 using tflite::testing::TestStrideSlide;
+
+TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(UnsupportedInputSize) {
   float output_data[4];

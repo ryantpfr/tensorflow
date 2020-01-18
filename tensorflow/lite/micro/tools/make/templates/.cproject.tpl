@@ -57,6 +57,9 @@
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.PROF.1652931628" name="Enable function profiling (-p)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.PROF" value="false" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF.666882124" name="Use non-reentrant printf to reduce code size (-mtiny-printf)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT.989647006" name="Convert floating point constants to single precision constants (-fsingle-precision-constant)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT" value="false" valueType="boolean"/>
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE.1565801239" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="TFLITE_REGISTRATIONS_MAX=10"/>
+								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS.1753611917" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__CPP_SRCS.734600769" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__CPP_SRCS"/>
 								<inputType id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__ASM_SRCS.1545012817" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__ASM_SRCS"/>
