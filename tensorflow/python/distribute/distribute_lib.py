@@ -102,7 +102,7 @@ import weakref
 
 import six
 
-from tensorflow.python.autograph.core import ag_ctx
+from tensorflow.python.autograph.core import ag_ctx as autograph_ctx
 from tensorflow.python.autograph.impl import api as autograph
 from tensorflow.python.data.ops import dataset_ops
 from tensorflow.python.distribute import device_util
@@ -128,6 +128,7 @@ from tensorflow.python.platform import tf_logging
 from tensorflow.python.training.tracking import base as trackable
 from tensorflow.python.util import nest
 from tensorflow.python.util import tf_contextlib
+from tensorflow.python.util.deprecation import deprecated
 from tensorflow.python.util.tf_export import tf_export
 from tensorflow.tools.docs import doc_controls
 
@@ -655,8 +656,8 @@ class Strategy(object):
     worker, and each worker will do redundant work. We will print a warning
     if this method of sharding is selected.
 
-    You can disable dataset sharding across workers using the `auto_shard`
-    option in `tf.data.experimental.DistributeOptions`.
+    You can disable dataset sharding across workers using the
+    `auto_shard_policy` option in `tf.data.experimental.DistributeOptions`.
 
     Within each worker, we will also split the data among all the worker
     devices (if more than one a present), and this will happen even if
@@ -671,7 +672,7 @@ class Strategy(object):
     by the iterator. This can be used to set the `input_signature` property
     of a `tf.function`.
 
-     ```python
+    ```python
     strategy = tf.distribute.MirroredStrategy()
 
     # Create a dataset
@@ -801,11 +802,15 @@ class Strategy(object):
       structure can either be "per-replica" `Tensor` objects or `Tensor`s
       (for example, if running on a single replica).
     """
+    if not isinstance(args, (list, tuple)):
+      raise ValueError(
+          "positional args must be a list or tuple, got {}".format(type(args)))
+
     with self.scope():
       # tf.distribute supports Eager functions, so AutoGraph should not be
       # applied when when the caller is also in Eager mode.
-      fn = autograph.tf_convert(fn, ag_ctx.control_status_ctx(),
-                                convert_by_default=False)
+      fn = autograph.tf_convert(
+          fn, autograph_ctx.control_status_ctx(), convert_by_default=False)
       return self._extended.call_for_each_replica(fn, args=args, kwargs=kwargs)
 
   def reduce(self, reduce_op, value, axis):
@@ -1586,7 +1591,7 @@ class StrategyExtendedV2(object):
     if kwargs is None:
       kwargs = {}
     fn = autograph.tf_convert(
-        fn, ag_ctx.control_status_ctx(), convert_by_default=False)
+        fn, autograph_ctx.control_status_ctx(), convert_by_default=False)
     with self._container_strategy().scope():
       return self._update(var, fn, args, kwargs, group)
 
@@ -1612,7 +1617,7 @@ class StrategyExtendedV2(object):
     if kwargs is None:
       kwargs = {}
     fn = autograph.tf_convert(
-        fn, ag_ctx.control_status_ctx(), convert_by_default=False)
+        fn, autograph_ctx.control_status_ctx(), convert_by_default=False)
     with self._container_strategy().scope():
       return self._update_non_slot(colocate_with, fn, args, kwargs, group)
 
@@ -1996,8 +2001,8 @@ class ReplicaContext(object):
     require_replica_context(self)
     if kwargs is None:
       kwargs = {}
-    merge_fn = autograph.tf_convert(merge_fn, ag_ctx.control_status_ctx(),
-                                    convert_by_default=False)
+    merge_fn = autograph.tf_convert(
+        merge_fn, autograph_ctx.control_status_ctx(), convert_by_default=False)
     return self._merge_call(merge_fn, args, kwargs)
 
   def _merge_call(self, merge_fn, args, kwargs):
@@ -2281,12 +2286,23 @@ class _DefaultDistributionExtended(StrategyExtendedV1):
     def get_next(self):
       return self._iterator.get_next()
 
+    @deprecated(None, "Use the iterator's `initializer` property instead.")
     def initialize(self):
+      """Initialize underlying iterators.
+
+      Returns:
+        A list of any initializer ops that should be run.
+      """
       if eager_context.executing_eagerly():
         self._iterator = self._dataset.make_one_shot_iterator()
         return []
       else:
         return [self._iterator.initializer]
+
+    @property
+    def initializer(self):
+      """Returns a list of ops that initialize the iterator."""
+      return self.initialize()
 
   # TODO(priyag): Delete this once all strategies use global batch size.
   @property

@@ -316,6 +316,11 @@ tf_xla_py_test(
     timeout = "moderate",
     srcs = ["matrix_inverse_op_test.py"],
     python_version = "PY3",
+    tags = [
+        "noasan",
+        "nomsan",
+        "notsan",
+    ],
     deps = [
         ":xla_test",
         "//tensorflow/python:array_ops",
@@ -1520,29 +1525,6 @@ tf_xla_py_test(
     ],
     deps = [
         ":xla_test",
-        "//tensorflow/python:framework",
-        "//tensorflow/python:linalg_ops",
-        "//tensorflow/python:platform_test",
-        "//tensorflow/python:standard_ops",
-    ],
-)
-
-tf_xla_py_test(
-    name = "determinant_ops_test",
-    size = "medium",
-    srcs = ["determinant_ops_test.py"],
-    disabled_backends = [
-        "cpu_ondemand",
-        "cpu",
-        "gpu",
-    ],
-    python_version = "PY3",
-    tags = [
-        "optonly",
-    ],
-    deps = [
-        ":xla_test",
-        "//tensorflow/python:array_ops",
         "//tensorflow/python:framework",
         "//tensorflow/python:linalg_ops",
         "//tensorflow/python:platform_test",

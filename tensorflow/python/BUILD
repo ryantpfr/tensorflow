@@ -3,7 +3,7 @@
 # Public targets:
 #  ":platform" - Low-level and platform-specific Python code.
 
-load("//tensorflow:tensorflow.bzl", "cc_header_only_library", "if_mlir", "if_not_windows", "py_test", "py_tests", "tf_cc_shared_object", "tf_cuda_library", "tf_gen_op_wrapper_py", "tf_py_build_info_genrule", "tf_py_test")
+load("//tensorflow:tensorflow.bzl", "cc_header_only_library", "if_mlir", "if_not_windows", "if_xla_available", "py_test", "py_tests", "tf_cc_shared_object", "tf_cuda_library", "tf_gen_op_wrapper_py", "tf_py_build_info_genrule", "tf_py_test")
 load("//tensorflow:tensorflow.bzl", "tf_python_pybind_extension")
 load("//tensorflow:tensorflow.bzl", "pybind_extension")
 load("//tensorflow:tensorflow.bzl", "tf_py_wrap_cc")
@@ -822,9 +822,12 @@ cc_library(
     srcs = ["lib/core/py_seq_tensor.cc"],
     hdrs = ["lib/core/py_seq_tensor.h"],
     deps = [
+        ":ndarray_tensor",
+        ":ndarray_tensor_bridge",
         ":numpy_lib",
         ":py_util",
         ":safe_ptr",
+        "//tensorflow/c/eager:c_api_internal",
         "//tensorflow/core:framework",
         "//tensorflow/core:lib",
         "//third_party/python_runtime:headers",
@@ -1108,10 +1111,12 @@ py_library(
         ":tensor_util",
         ":type_spec",
         ":util",
-        "//tensorflow/python/eager:context",
         "//third_party/py/numpy",
         "@six_archive//:six",
-    ],
+        "//tensorflow/python/eager:context",
+    ] + if_xla_available([
+        "//tensorflow/compiler/aot:_pywrap_tfcompile",
+    ]),
 )
 
 py_library(
@@ -2414,7 +2419,6 @@ tf_gen_op_wrapper_private_py(
     visibility = [
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
-        "//tensorflow/contrib/quantization:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
     ],
     deps = [
@@ -2457,10 +2461,7 @@ tf_gen_op_wrapper_private_py(
 
 tf_gen_op_wrapper_private_py(
     name = "audio_ops_gen",
-    visibility = [
-        "//learning/brain/python/ops:__pkg__",
-        "//tensorflow/contrib/framework:__pkg__",
-    ],
+    visibility = ["//learning/brain/python/ops:__pkg__"],
 )
 
 tf_gen_op_wrapper_private_py(
@@ -2477,10 +2478,7 @@ tf_gen_op_wrapper_private_py(
 
 tf_gen_op_wrapper_private_py(
     name = "checkpoint_ops_gen",
-    visibility = [
-        "//tensorflow/contrib/framework:__pkg__",
-        "//tensorflow/python/kernel_tests:__pkg__",
-    ],
+    visibility = ["//tensorflow/python/kernel_tests:__pkg__"],
 )
 
 tf_gen_op_wrapper_private_py(
@@ -2572,7 +2570,6 @@ tf_gen_op_wrapper_private_py(
     name = "lookup_ops_gen",
     visibility = [
         "//learning/brain/python/ops:__pkg__",
-        "//tensorflow/contrib/lookup:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
     ],
 )
@@ -2631,7 +2628,6 @@ tf_gen_op_wrapper_private_py(
         "//learning/brain/google/python/ops:__pkg__",
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
-        "//tensorflow/contrib/quantization:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
     ],
 )
@@ -2641,7 +2637,6 @@ tf_gen_op_wrapper_private_py(
     visibility = [
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
-        "//tensorflow/contrib/quantization:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
         "//tensorflow/python/tools:__pkg__",
     ],
@@ -2688,10 +2683,7 @@ tf_gen_op_wrapper_private_py(
 
 tf_gen_op_wrapper_private_py(
     name = "sdca_ops_gen",
-    visibility = [
-        "//tensorflow/contrib/linear_optimizer:__pkg__",
-        "//tensorflow_estimator/python/estimator/canned/linear_optimizer:__pkg__",
-    ],
+    visibility = ["//tensorflow_estimator/python/estimator/canned/linear_optimizer:__pkg__"],
 )
 
 tf_gen_op_wrapper_private_py(
@@ -2702,7 +2694,6 @@ tf_gen_op_wrapper_private_py(
     name = "state_ops_gen",
     visibility = [
         "//learning/brain/python/ops:__pkg__",
-        "//tensorflow/contrib/framework:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
     ],
 )
@@ -2744,10 +2735,7 @@ tf_gen_op_wrapper_private_py(
     visibility = ["//tensorflow/python/ops/ragged:__pkg__"],
 )
 
-tf_gen_op_wrapper_private_py(
-    name = "rnn_ops_gen",
-    visibility = ["//tensorflow/contrib/rnn:__pkg__"],
-)
+tf_gen_op_wrapper_private_py(name = "rnn_ops_gen")
 
 tf_gen_op_wrapper_private_py(
     name = "sendrecv_ops_gen",
@@ -2787,6 +2775,7 @@ py_library(
         ":framework_for_generated_wrappers",
         ":math_ops",
         ":sparse_ops",
+        "//tensorflow/compiler/tf2xla/ops:gen_xla_ops",
     ],
 )
 
@@ -2984,9 +2973,12 @@ cuda_py_test(
     srcs = ["ops/collective_ops_gpu_test.py"],
     python_version = "PY3",
     tags = [
-        "no_cuda_on_cpu_tap",
+        "guitar",
+        "manual",
+        "multi_gpu",
+        "no_oss",
         "no_rocm",
-        "no_windows",
+        "notap",
     ],
     deps = [
         ":client_testlib",
@@ -3684,6 +3676,7 @@ cuda_py_test(
     name = "loss_scaling_gradient_tape_test",
     size = "medium",
     srcs = ["training/experimental/loss_scaling_gradient_tape_test.py"],
+    shard_count = 2,
     deps = [
         ":client_testlib",
         ":constant_op",
@@ -4847,17 +4840,17 @@ cuda_py_test(
     name = "sobol_ops_test",
     size = "small",
     srcs = ["ops/sobol_ops_test.py"],
-    additional_deps = [
+    kernels = [
+        "//tensorflow/core/kernels:libtfkernel_sobol_op.so",
+    ],
+    tags = ["no_windows_gpu"],
+    deps = [
         ":framework_for_generated_wrappers",
         ":framework_test_lib",
         ":math_ops",
         ":platform_test",
         "//third_party/py/numpy",
     ],
-    kernels = [
-        "//tensorflow/core/kernels:libtfkernel_sobol_op.so",
-    ],
-    tags = ["no_windows_gpu"],
 )
 
 cuda_py_test(
@@ -5565,6 +5558,8 @@ tf_py_wrap_cc(
     ] + (tf_additional_lib_deps() +
          tf_additional_plugin_deps()) + if_ngraph([
         "@ngraph_tf//:ngraph_tf",
+    ]) + if_xla_available([
+        "//tensorflow/compiler/aot:tfcompile_lib",
     ]),
 )
 
@@ -7554,6 +7549,7 @@ py_library(
     visibility = visibility + [
         "//learning/deepmind/tensorflow:__subpackages__",
         "//third_party/car/deep_nets/tensorflow:__subpackages__",
+        "//waymo/ml:__subpackages__",
     ],
     deps = [
         ":framework_for_generated_wrappers",
