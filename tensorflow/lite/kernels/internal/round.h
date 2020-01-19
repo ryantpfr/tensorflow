@@ -28,6 +28,13 @@ inline float TfLiteRound(const float x) {
   return ::round(x);
 }
 inline double TfLiteRound(const double x) { return ::round(x); }
+#elif defined(__MSP430__)
+inline long TfLiteRound(const float x) {
+  return lroundf(x);
+}
+inline long TfLiteRound(const double x) {
+  return lround(x);
+}
 #else
 template <class T>
 inline T TfLiteRound(const T x) {
