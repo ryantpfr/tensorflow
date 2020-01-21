@@ -15,8 +15,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -46,8 +46,6 @@ void TestLogicalOp(const TfLiteRegistration* registration,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-
-  TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteIntArray* inputs_array = IntArrayFromInitializer({2, 0, 1});
   TfLiteIntArray* outputs_array = IntArrayFromInitializer({1, 2});

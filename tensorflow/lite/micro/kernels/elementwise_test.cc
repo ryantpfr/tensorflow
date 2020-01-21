@@ -15,17 +15,17 @@ limitations under the License.
 
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/debug_log.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
 
-void TestElementwiseFloat(tflite::BuiltinOperator op,
-                          std::initializer_list<int> input_dims_data,
+void TestElementwiseFloat(TfLiteRegistration* registration,
+                          std::initializer_list<int32_t> input_dims_data,
                           std::initializer_list<float> input_data,
-                          std::initializer_list<int> output_dims_data,
+                          std::initializer_list<int32_t> output_dims_data,
                           std::initializer_list<float> expected_output_data,
                           float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -46,22 +46,17 @@ void TestElementwiseFloat(tflite::BuiltinOperator op,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(op, /* version= */ 1);
-  TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   void* user_data = nullptr;
   if (registration->init) {
     user_data = registration->init(&context, nullptr, 0);
   }
-  auto inputs_array_data = {1, 0};
-  TfLiteIntArray* inputs_array = IntArrayFromInitializer(inputs_array_data);
-  auto outputs_array_data = {1, 1};
-  TfLiteIntArray* outputs_array = IntArrayFromInitializer(outputs_array_data);
-  auto temporaries_array_data = {0};
-  TfLiteIntArray* temporaries_array =
-      IntArrayFromInitializer(temporaries_array_data);
+  int32_t inputs_array_data[] = {1, 0};
+  TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
+  int32_t outputs_array_data[] = {1, 1};
+  TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
+  int32_t temporaries_array_data[] = {0};
+  TfLiteIntArray* temporaries_array = IntArrayFromInts(temporaries_array_data);
 
   TfLiteNode node;
   node.inputs = inputs_array;
@@ -88,10 +83,10 @@ void TestElementwiseFloat(tflite::BuiltinOperator op,
   }
 }
 
-void TestElementwiseBool(tflite::BuiltinOperator op,
-                         std::initializer_list<int> input_dims_data,
+void TestElementwiseBool(TfLiteRegistration* registration,
+                         std::initializer_list<int32_t> input_dims_data,
                          std::initializer_list<bool> input_data,
-                         std::initializer_list<int> output_dims_data,
+                         std::initializer_list<int32_t> output_dims_data,
                          std::initializer_list<bool> expected_output_data,
                          bool* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInitializer(input_dims_data);
@@ -112,10 +107,6 @@ void TestElementwiseBool(tflite::BuiltinOperator op,
 
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
-  tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration =
-      resolver.FindOp(op, /* version= */ 1);
-  TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   void* user_data = nullptr;
   if (registration->init) {
@@ -158,7 +149,7 @@ TF_LITE_MICRO_TEST(Abs) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_ABS,  // ABS operator
+      tflite::ops::micro::Register_ABS(),  // ABS operator
       {2, 2, 2},                    // Input shape
       {0.01, -0.01, 10, -10},       // Input values
       {2, 2, 2},                    // Output shape
@@ -170,7 +161,7 @@ TF_LITE_MICRO_TEST(Sin) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_SIN,    // SIN operator
+      tflite::ops::micro::Register_SIN(),    // SIN operator
       {2, 2, 2},                      // Input shape
       {0, 3.1415926, -3.1415926, 1},  // Input values
       {2, 2, 2},                      // Output shape
@@ -182,7 +173,7 @@ TF_LITE_MICRO_TEST(Cos) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_COS,    // COS operator
+      tflite::ops::micro::Register_COS(),    // COS operator
       {2, 2, 2},                      // Input shape
       {0, 3.1415926, -3.1415926, 1},  // Input values
       {2, 2, 2},                      // Output shape
@@ -194,7 +185,7 @@ TF_LITE_MICRO_TEST(Log) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_LOG,    // LOG operator
+      tflite::ops::micro::Register_LOG(),    // LOG operator
       {2, 2, 2},                      // Input shape
       {1, 2.7182818, 0.5, 2},         // Input values
       {2, 2, 2},                      // Output shape
@@ -206,7 +197,7 @@ TF_LITE_MICRO_TEST(Sqrt) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_SQRT,  // SQRT operator
+      tflite::ops::micro::Register_SQRT(),  // SQRT operator
       {2, 2, 2},                     // Input shape
       {0, 1, 2, 4},                  // Input values
       {2, 2, 2},                     // Output shape
@@ -218,7 +209,7 @@ TF_LITE_MICRO_TEST(Rsqrt) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_RSQRT,  // RSQRT operator
+      tflite::ops::micro::Register_RSQRT(),  // RSQRT operator
       {2, 2, 2},                      // Input shape
       {1, 2, 4, 9},                   // Input values
       {2, 2, 2},                      // Output shape
@@ -230,7 +221,7 @@ TF_LITE_MICRO_TEST(Square) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::BuiltinOperator_SQUARE,  // SQARE operator
+      tflite::ops::micro::Register_SQUARE(),  // SQARE operator
       {2, 2, 2},                       // Input shape
       {1, 2, 0.5, -3.0},               // Input values
       {2, 2, 2},                       // Output shape
@@ -242,7 +233,7 @@ TF_LITE_MICRO_TEST(LogicalNot) {
   constexpr int output_dims_count = 4;
   bool output_data[output_dims_count];
   tflite::testing::TestElementwiseBool(
-      tflite::BuiltinOperator_LOGICAL_NOT,  // Logical NOT operator
+      tflite::ops::micro::Register_LOGICAL_NOT(),  // Logical NOT operator
       {2, 2, 2},                            // Input shape
       {true, false, false, true},           // Input values
       {2, 2, 2},                            // Output shape
