@@ -33,6 +33,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.MHWMULT.1662655751" name="Hardware multiply (-mhwmult)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.MHWMULT" value="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.MHWMULT.F5SERIES" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.INCLUDE_PATH.1764290335" name="Include paths (-I)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.INCLUDE_PATH" valueType="includePath">
 									<listOptionValue builtIn="false" value="${CCS_BASE_ROOT}/msp430/include_gcc"/>
+									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/third_party/kissfft}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/third_party/flatbuffers/include}"/>
 									<listOptionValue builtIn="false" value="${workspace_loc:/${ProjName}/third_party/gemmlowp}"/>
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
@@ -57,7 +58,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.PROF.1652931628" name="Enable function profiling (-p)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.PROF" value="false" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF.666882124" name="Use non-reentrant printf to reduce code size (-mtiny-printf)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT.989647006" name="Convert floating point constants to single precision constants (-fsingle-precision-constant)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT" value="false" valueType="boolean"/>
-								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE.1565801239" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE" valueType="definedSymbols">
+								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE.1565801239" name="Define symbols (-D)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TFLITE_REGISTRATIONS_MAX=10"/>
 								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS.1753611917" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS"/>

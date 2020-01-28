@@ -70,14 +70,15 @@ class MockOpResolver : public OpResolver {
 }  // namespace
 }  // namespace tflite
 
+constexpr size_t allocator_buffer_size = 2048;
+uint8_t allocator_buffer[allocator_buffer_size];
+
 TF_LITE_MICRO_TESTS_BEGIN
 
 TF_LITE_MICRO_TEST(TestInterpreter) {
   const tflite::Model* model = tflite::testing::GetSimpleMockModel();
   TF_LITE_MICRO_EXPECT_NE(nullptr, model);
   tflite::MockOpResolver mock_resolver;
-  constexpr size_t allocator_buffer_size = 1024;
-  static uint8_t allocator_buffer[allocator_buffer_size];
   tflite::MicroInterpreter interpreter(model, mock_resolver, allocator_buffer,
                                        allocator_buffer_size,
                                        micro_test::reporter);
@@ -114,8 +115,6 @@ TF_LITE_MICRO_TEST(TestVariableTensorReset) {
   TF_LITE_MICRO_EXPECT_NE(nullptr, model);
 
   tflite::MockOpResolver mock_resolver;
-  constexpr size_t allocator_buffer_size = 2048;
-  uint8_t allocator_buffer[allocator_buffer_size];
   tflite::MicroInterpreter interpreter(model, mock_resolver, allocator_buffer,
                                        allocator_buffer_size,
                                        micro_test::reporter);
@@ -189,8 +188,6 @@ TF_LITE_MICRO_TEST(TestIncompleteInitialization) {
   TF_LITE_MICRO_EXPECT_NE(nullptr, model);
 
   tflite::MockOpResolver mock_resolver;
-  constexpr size_t allocator_buffer_size = 2048;
-  uint8_t allocator_buffer[allocator_buffer_size];
   tflite::MicroInterpreter interpreter(model, mock_resolver, allocator_buffer,
                                        allocator_buffer_size,
                                        micro_test::reporter);
