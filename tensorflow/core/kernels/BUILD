@@ -308,6 +308,8 @@ tf_kernel_library(
         "conv_2d_gpu_float.cu.cc",
         "conv_2d_gpu_half.cu.cc",
         "conv_2d_gpu_int.cu.cc",
+        "conv_2d_gpu_int_spatial_convolution.cu.cc",
+        "conv_2d_gpu_int_spatial_convolution_backward.cu.cc",
         "conv_2d_gpu_uint16.cu.cc",
         "conv_2d_gpu_uint32.cu.cc",
         "conv_2d_gpu_uint64.cu.cc",
@@ -532,10 +534,12 @@ tf_cuda_library(
         "//tensorflow/core:conv_autotuning_proto_cc",
         "//tensorflow/core:lib",
         "//tensorflow/core:stream_executor",
+        "//tensorflow/core/util:env_var",
         "//tensorflow/core/util/proto:proto_utils",
         "//tensorflow/stream_executor/gpu:asm_compiler",
         "//tensorflow/stream_executor/gpu:redzone_allocator",
         "@com_google_absl//absl/algorithm:container",
+        "@com_google_absl//absl/base",
         "@com_google_absl//absl/types:span",
     ],
 )
@@ -782,7 +786,7 @@ cc_library(
     deps = select({
         ":no_mkldnn_contraction_kernel": [":eigen_contraction_kernel_no_mkl"],
         "//conditions:default": [":eigen_contraction_kernel_with_mkl"],
-    }),
+    }) + ["@com_google_absl//absl/base"],
 )
 
 cc_library(
@@ -801,6 +805,7 @@ cc_library(
         ],
     }),
     deps = [
+        "@com_google_absl//absl/base",
         "//third_party/eigen3",
         "//tensorflow/core/platform:dynamic_annotations",
     ] + select({
@@ -820,6 +825,7 @@ cc_library(
     deps = [
         "//tensorflow/core/platform:dynamic_annotations",
         "//third_party/eigen3",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -1888,6 +1894,7 @@ tf_cc_test(
         "//tensorflow/core:test",
         "//tensorflow/core:test_main",
         "//tensorflow/core:testlib",
+        "@com_google_absl//absl/base",
     ],
 )
 
@@ -2364,9 +2371,10 @@ tf_kernel_library(
         "//tensorflow/core:lib",
         "//tensorflow/core/util/ctc:ctc_beam_search_lib",
         "//tensorflow/core/util/ctc:ctc_loss_calculator_lib",
-    ] + if_cuda([
+    ] + if_cuda_or_rocm([
         ":gpu_utils",
         ":conv_ops_gpu_hdrs",
+    ]) + if_cuda([
         "@local_config_cuda//cuda:cudnn_header",
     ]),
 )
@@ -2920,6 +2928,7 @@ cc_library(
         ":encode_png_op",
         ":extract_jpeg_shape_op",
         ":generate_box_proposals_op",
+        ":image_ops",
         ":non_max_suppression_op",
         ":random_crop_op",
         ":resize_area_op",
@@ -3077,6 +3086,12 @@ tf_kernel_library(
 tf_kernel_library(
     name = "sample_distorted_bounding_box_op",
     prefix = "sample_distorted_bounding_box_op",
+    deps = IMAGE_DEPS,
+)
+
+tf_kernel_library(
+    name = "image_ops",
+    prefix = "image_ops",
     deps = IMAGE_DEPS,
 )
 
@@ -3296,7 +3311,6 @@ tf_cuda_cc_test(
     deps = [
         ":image",
         ":ops_testutil",
-        ":ops_util",
         "//tensorflow/core:core_cpu",
         "//tensorflow/core:framework",
         "//tensorflow/core:lib",
@@ -3304,6 +3318,7 @@ tf_cuda_cc_test(
         "//tensorflow/core:test",
         "//tensorflow/core:test_main",
         "//tensorflow/core:testlib",
+        "@com_google_absl//absl/strings",
     ],
 )
 
@@ -3897,6 +3912,7 @@ cc_library(
         ":scan_ops",
         ":segment_reduction_ops",
         ":sequence_ops",
+        "//tensorflow/core/kernels/special_math:special_math_op",
     ],
 )
 
@@ -4978,6 +4994,7 @@ cc_library(
 )
 
 PARSING_DEPS = [
+    "@com_google_absl//absl/base",
     "//tensorflow/core:core_cpu_internal",
     "//tensorflow/core:framework",
     "//tensorflow/core:lib",
@@ -5940,6 +5957,7 @@ tf_kernel_library(
         ":random_ops",
         ":resource_variable_ops",
         ":stateful_random_ops",
+        ":stateless_random_ops",
         ":training_op_helpers",
         "//tensorflow/core:framework",
         "//tensorflow/core:framework_internal",
@@ -6868,6 +6886,7 @@ cc_library(
         "//tensorflow/core:protos_all_cc_impl",
         "//third_party/eigen3",
         "//third_party/fft2d:fft2d_headers",
+        "@com_google_absl//absl/base",
         "@com_google_protobuf//:protobuf",
         "@fft2d",
         "@gemmlowp",

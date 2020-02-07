@@ -37,6 +37,10 @@ constexpr int kBiasTensor = 2;
 constexpr int kOutputTensor = 0;
 constexpr int kMaxChannels = 256;
 
+// Depthwise conv is quantized along dimension 3:
+// https://www.tensorflow.org/lite/performance/quantization_spec
+constexpr int kDepthwiseConvQuantizedDimension = 3;
+
 struct OpData {
   TfLitePaddingValues padding;
   // The scaling factor from input to output (aka the 'real multiplier') can
@@ -78,6 +82,7 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteNode* node,
     const TfLiteTensor* bias =
         GetOptionalInputTensor(context, node, kBiasTensor);
     TfLiteTensor* output = GetOutput(context, node, kOutputTensor);
+    int num_channels = filter->dims->data[kDepthwiseConvQuantizedDimension];
 
     // Since tflite::PopulateConvolutionQuantizationParams requires an int
     // array. but data->per_channel_output_shift needs to be an int32_t for
@@ -90,7 +95,7 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteNode* node,
         &data->output_multiplier, &data->output_shift,
         &data->output_activation_min, &data->output_activation_max,
         data->per_channel_output_multiplier,
-        per_chan_shift));
+        per_chan_shift, num_channels));
 
     if(sizeof(int)<sizeof(int32_t)){ // The compiler should optimize this out
         for(int i = kMaxChannels-1; i >= 0; i--){
@@ -235,12 +240,11 @@ TfLiteStatus Eval(TfLiteContext* context, TfLiteNode* node) {
     TF_LITE_ENSURE(context, affine_quantization);
     TF_LITE_ENSURE(context, affine_quantization->scale);
     TF_LITE_ENSURE(context, affine_quantization->zero_point);
-    // Depthwise conv is quantized along dimension 3:
-    // https://www.tensorflow.org/lite/performance/quantization_spec
-    TF_LITE_ENSURE_EQ(context, affine_quantization->quantized_dimension, 3);
-    TF_LITE_ENSURE_EQ(context, filter->dims->data[3],
-                      affine_quantization->scale->size);
-    TF_LITE_ENSURE_EQ(context, filter->dims->data[3],
+    TF_LITE_ENSURE(
+        context, affine_quantization->scale->size == 1 ||
+                     affine_quantization->scale->size ==
+                         filter->dims->data[kDepthwiseConvQuantizedDimension]);
+    TF_LITE_ENSURE_EQ(context, affine_quantization->scale->size,
                       affine_quantization->zero_point->size);
   }
 

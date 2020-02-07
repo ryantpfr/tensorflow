@@ -510,9 +510,15 @@ static LogicalResult Verify(BroadcastToOp op) {
 // CastOp
 //===----------------------------------------------------------------------===//
 
-void CastOp::getCanonicalizationPatterns(OwningRewritePatternList &results,
-                                         MLIRContext *context) {
-  results.insert<CastSameType>(context);
+//===----------------------------------------------------------------------===//
+// LeakyReluOp
+//===----------------------------------------------------------------------===//
+
+OpFoldResult CastOp::fold(ArrayRef<Attribute> operands) {
+  // Cast with the same type is a no-op.
+  Value operand = getOperand();
+  if (getType() == operand.getType()) return operand;
+  return {};
 }
 
 //===----------------------------------------------------------------------===//
@@ -1537,6 +1543,34 @@ static LogicalResult Verify(ParseExampleV2Op op) {
 }
 
 //===----------------------------------------------------------------------===//
+// PartitionedCallOp
+//===----------------------------------------------------------------------===//
+
+static LogicalResult Verify(PartitionedCallOp op) {
+  auto module = op.getParentOfType<ModuleOp>();
+  FlatSymbolRefAttr func = op.getAttr("f").cast<FlatSymbolRefAttr>();
+
+  auto function = module.lookupSymbol<FuncOp>(func.getValue());
+
+  if (!function) {
+    return op.emitError("f attribute refers to an undefined function: ")
+           << func.getValue();
+  }
+
+  FunctionType function_ty = function.getType();
+  int func_arg_count = function_ty.getNumInputs();
+  int arg_count = op.args().size();
+
+  if (arg_count != func_arg_count) {
+    return op.emitError() << "argument count mismatch: args has " << arg_count
+                          << " arguments, but " << func.getValue()
+                          << " expects " << func_arg_count;
+  }
+
+  return success();
+}
+
+//===----------------------------------------------------------------------===//
 // ReciprocalOp
 //===----------------------------------------------------------------------===//
 
@@ -2492,6 +2526,33 @@ static LogicalResult Verify(TopKV2Op op) {
 }
 
 //===----------------------------------------------------------------------===//
+// ToBoolOp
+//===----------------------------------------------------------------------===//
+
+namespace {
+// If the input to ToBoolOp is a `tensor<i1>`, then the ToBoolOp is an identity
+// function and can be removed.
+class ToBoolOfZeroDBoolTensor : public OpRewritePattern<ToBoolOp> {
+  using OpRewritePattern<ToBoolOp>::OpRewritePattern;
+  PatternMatchResult matchAndRewrite(ToBoolOp op,
+                                     PatternRewriter &rewriter) const override {
+    if (auto type = op.getOperand().getType().dyn_cast<RankedTensorType>()) {
+      if (type.getRank() == 0 && type.getElementType().isInteger(1)) {
+        rewriter.replaceOp(op, op.getOperand());
+        return matchSuccess();
+      }
+    }
+    return matchFailure();
+  }
+};
+}  // namespace
+
+void ToBoolOp::getCanonicalizationPatterns(OwningRewritePatternList &results,
+                                           MLIRContext *context) {
+  results.insert<ToBoolOfZeroDBoolTensor>(context);
+}
+
+//===----------------------------------------------------------------------===//
 // TransposeOp
 //===----------------------------------------------------------------------===//
 
@@ -2680,7 +2741,6 @@ static LogicalResult Verify(WhileOp op) {
     return op.emitOpError("requires cond function to have exactly one result");
 
   SmallVector<Type, 4> operands(op.getOperandTypes());
-  SmallVector<Type, 4> results(op.getResultTypes());
 
   // Collect all the type lists for the op so that different pairs of type lists
   // can be compared for the compatibility.
@@ -2688,7 +2748,7 @@ static LogicalResult Verify(WhileOp op) {
   std::pair<std::string, ArrayRef<Type>> typeLists[] = {
       {"operand", operands},
       {"body function result", bodyFuncType.getResults()},
-      {"result", results},
+      {"result", op.getResultTypes()},
       {"cond function input", condFuncType.getInputs()},
       {"body function input", bodyFuncType.getInputs()},
   };
@@ -2803,6 +2863,8 @@ struct TFInlinerInterface : public DialectInlinerInterface {
 //===----------------------------------------------------------------------===//
 // TF Dialect
 //===----------------------------------------------------------------------===//
+
+#include "tensorflow/compiler/mlir/tensorflow/ir/tf_op_interfaces.cc.inc"
 
 TensorFlowDialect::TensorFlowDialect(MLIRContext *context)
     : Dialect(/*name=*/"tf", context) {

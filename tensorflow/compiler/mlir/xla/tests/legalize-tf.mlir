@@ -1319,6 +1319,60 @@ func @pack(%arg0: tensor<2xi32>, %arg1: tensor<2xi32>) -> tensor<2x2xi32> {
 }
 
 //===----------------------------------------------------------------------===//
+// PartitionedCall op legalization.
+//===----------------------------------------------------------------------===//
+
+// CHECK-LABEL: func @partitioned_call
+func @partitioned_call(%arg0: tensor<i32>) -> tensor<i32> {
+  // CHECK: call @pcall_func(%arg0) : (tensor<i32>) -> tensor<i32>
+  %0 = "tf.PartitionedCall"(%arg0) {config = "", config_proto = "", executor_type = "", f = @pcall_func} : (tensor<i32>) -> (tensor<i32>)
+  return %0 : tensor<i32>
+}
+
+func @pcall_func(%arg0: tensor<i32>) -> tensor<i32> {
+  return %arg0 : tensor<i32>
+}
+
+// CHECK-LABEL: func @partitioned_call_multi_input
+func @partitioned_call_multi_input(%arg0: tensor<i32>, %arg1: tensor<i32>) -> tensor<i32> {
+  // CHECK: call @pcall_multi_input(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> tensor<i32>
+  %0 = "tf.PartitionedCall"(%arg0, %arg1) {config = "", config_proto = "", executor_type = "", f = @pcall_multi_input} : (tensor<i32>, tensor<i32>) -> (tensor<i32>)
+  return %0 : tensor<i32>
+}
+
+func @pcall_multi_input(%arg0: tensor<i32>, %arg1: tensor<i32>) -> tensor<i32> {
+  return %arg0 : tensor<i32>
+}
+
+// CHECK-LABEL: func @partitioned_call_multi_in_out
+func @partitioned_call_multi_in_out(%arg0: tensor<i32>, %arg1: tensor<i32>) -> (tensor<i32>, tensor<i32>) {
+  // CHECK: call @pcall_multi_in_out(%arg0, %arg1) : (tensor<i32>, tensor<i32>) -> (tensor<i32>, tensor<i32>)
+  %0, %1 = "tf.PartitionedCall"(%arg0, %arg1) {config = "", config_proto = "", executor_type = "", f = @pcall_multi_in_out} : (tensor<i32>, tensor<i32>) -> (tensor<i32>, tensor<i32>)
+  return %0, %1 : tensor<i32>, tensor<i32>
+}
+
+func @pcall_multi_in_out(%arg0: tensor<i32>, %arg1: tensor<i32>) -> (tensor<i32>, tensor<i32>) {
+  return %arg1, %arg0 : tensor<i32>, tensor<i32>
+}
+
+// CHECK-LABEL: func @unhandled_partitioned_call
+func @unhandled_partitioned_call(%arg0: tensor<*xi32>, %arg1: tensor<*xi32>) -> (tensor<i32>, tensor<i32>) {
+  // The argument types don't match the parameter types for the
+  // pcall_multi_in_out function. That's fine for a PartitionedCallOp but not
+  // for a standard CallOp, so this op can't be lowered.
+  // CHECK: "tf.PartitionedCall"
+  %0, %1 = "tf.PartitionedCall"(%arg0, %arg1) {config = "", config_proto = "", executor_type = "", f = @pcall_multi_in_out} : (tensor<*xi32>, tensor<*xi32>) -> (tensor<i32>, tensor<i32>)
+  return %0, %1 : tensor<i32>, tensor<i32>
+}
+
+// CHECK-LABEL: func @unhandled_partitioned_call_2
+func @unhandled_partitioned_call_2(%arg0: tensor<i32>, %arg1: tensor<*xi32>) -> (tensor<i32>, tensor<i32>) {
+  // CHECK: "tf.PartitionedCall"
+  %0, %1 = "tf.PartitionedCall"(%arg0, %arg1) {config = "", config_proto = "", executor_type = "", f = @pcall_multi_in_out} : (tensor<i32>, tensor<*xi32>) -> (tensor<i32>, tensor<i32>)
+  return %0, %1 : tensor<i32>, tensor<i32>
+}
+
+//===----------------------------------------------------------------------===//
 // Relu op legalizations.
 //===----------------------------------------------------------------------===//
 
@@ -2353,6 +2407,40 @@ func @max_dynamic(%arg0: tensor<4x?xf16>) -> tensor<4x1xf16> {
   return %0 : tensor<4x1xf16>
 }
 
+// CHECK-LABEL: func @min
+func @min(%arg0: tensor<4x8xf16>) -> tensor<4x1xf16> {
+  // CHECK: %[[CAST:.*]] = "xla_hlo.convert"(%arg0) : (tensor<4x8xf16>) -> tensor<4x8xf16>
+  // CHECK: %[[INITIAL:.*]] = xla_hlo.constant dense<0x7C00> : tensor<f16>
+  // CHECK: %[[REDUCED:.*]] = "xla_hlo.reduce"(%[[CAST]], %[[INITIAL]]) ( {
+  // CHECK: ^bb0(%[[ARGA:.*]]: tensor<f16>, %[[ARGB:.*]]: tensor<f16>):
+  // CHECK:  %[[REDUCE_BODY_RESULT:.*]] = xla_hlo.min %[[ARGA]], %[[ARGB]] : tensor<f16>
+  // CHECK:  "xla_hlo.return"(%[[REDUCE_BODY_RESULT]]) : (tensor<f16>) -> ()
+  // CHECK: }) {dimensions = dense<1> : tensor<1xi64>} : (tensor<4x8xf16>, tensor<f16>) -> tensor<4xf16>
+  // CHECK: %[[CAST_BACK:.*]] = "xla_hlo.convert"(%[[REDUCED]]) : (tensor<4xf16>) -> tensor<4xf16>
+  // CHECK: %[[RESULT:.*]] = "xla_hlo.reshape"(%[[CAST_BACK]]) : (tensor<4xf16>) -> tensor<4x1xf16>
+  // CHECK: return %[[RESULT]] : tensor<4x1xf16>
+  %dimension = "tf.Const"() { value = dense<1> : tensor<1xi64> } : () -> tensor<1xi64>
+  %0 = "tf.Min"(%arg0, %dimension) { keep_dims = true }: (tensor<4x8xf16>, tensor<1xi64>) -> tensor<4x1xf16>
+  return %0 : tensor<4x1xf16>
+}
+
+// CHECK-LABEL: func @prod
+func @prod(%arg0: tensor<4x8xf16>) -> tensor<4x1xf16> {
+  // CHECK: %[[CAST:.*]] = "xla_hlo.convert"(%arg0) : (tensor<4x8xf16>) -> tensor<4x8xf32>
+  // CHECK: %[[INITIAL:.*]] = xla_hlo.constant dense<1.000000e+00> : tensor<f32>
+  // CHECK: %[[REDUCED:.*]] = "xla_hlo.reduce"(%[[CAST]], %[[INITIAL]]) ( {
+  // CHECK: ^bb0(%[[ARGA:.*]]: tensor<f32>, %[[ARGB:.*]]: tensor<f32>):
+  // CHECK:  %[[REDUCE_BODY_RESULT:.*]] = xla_hlo.mul %[[ARGA]], %[[ARGB]] : tensor<f32>
+  // CHECK:  "xla_hlo.return"(%[[REDUCE_BODY_RESULT]]) : (tensor<f32>) -> ()
+  // CHECK: }) {dimensions = dense<1> : tensor<1xi64>} : (tensor<4x8xf32>, tensor<f32>) -> tensor<4xf32>
+  // CHECK: %[[CAST_BACK:.*]] = "xla_hlo.convert"(%[[REDUCED]]) : (tensor<4xf32>) -> tensor<4xf16>
+  // CHECK: %[[RESULT:.*]] = "xla_hlo.reshape"(%[[CAST_BACK]]) : (tensor<4xf16>) -> tensor<4x1xf16>
+  // CHECK: return %[[RESULT]] : tensor<4x1xf16>
+  %dimension = "tf.Const"() { value = dense<1> : tensor<1xi64> } : () -> tensor<1xi64>
+  %0 = "tf.Prod"(%arg0, %dimension) { keep_dims = true }: (tensor<4x8xf16>, tensor<1xi64>) -> tensor<4x1xf16>
+  return %0 : tensor<4x1xf16>
+}
+
 // CHECK-LABEL: @all
 func @all(%input: tensor<4x8xi1>) -> tensor<4xi1> {
   %dims = "tf.Const"() { value = dense<1> : tensor<1xi32>} : () -> tensor<1xi32>
@@ -2532,6 +2620,29 @@ func @range(%arg0: tensor<f32>, %arg1: tensor<f32>) -> tensor<5xf32> {
   // CHECK: "xla_hlo.add"([[MUL]], [[START]]) {broadcast_dimensions = dense<[]> : tensor<0xi64>}
   %3 = "tf.Range"(%arg0, %1, %arg1) {Tidx = "tfdtype$DT_FLOAT", device = "", name = "range"} : (tensor<f32>, tensor<f32>, tensor<f32>) -> tensor<5xf32>
   return %3 : tensor<5xf32>
+}
+
+// CHECK-LABEL: func @linspace_static
+// CHECK-SAME: [[START:%.*]]: tensor<f32>, [[STOP:%.*]]: tensor<f32>
+func @linspace_static(%arg0: tensor<f32>, %arg1: tensor<f32>) -> tensor<4xf32> {
+  // CHECK-DAG: [[NUM:%.*]] = xla_hlo.constant dense<4>
+  // CHECK-DAG: [[STEP_DENOMINATOR:%.*]] = "xla_hlo.convert"([[NUM]])
+  // CHECK-DAG: [[STEP_NUMERATOR:%.*]] = xla_hlo.sub [[STOP]], [[START]]
+  // CHECK-DAG: [[STEP:%.*]] = xla_hlo.div [[STEP_NUMERATOR]], [[STEP_DENOMINATOR]]
+  // CHECK-DAG: [[IOTA:%.*]] = "xla_hlo.iota"() {iota_dimension = 0 : i64}
+  // CHECK-DAG: [[MUL:%.*]] = "xla_hlo.mul"([[IOTA]], [[STEP]]) {broadcast_dimensions = dense<[]> : tensor<0xi64>}
+  // CHECK-DAG: [[LINSPACE:%.*]] = "xla_hlo.add"([[MUL]], [[START]]) {broadcast_dimensions = dense<[]> : tensor<0xi64>}
+  // CHECK: return [[LINSPACE]]
+  %0 = "tf.Const"() {_output_shapes = ["tfshape$"], device = "", dtype = i32, value = dense<4> : tensor<i32>} : () -> tensor<i32>
+  %1 = "tf.LinSpace"(%arg0, %arg1, %0) : (tensor<f32>, tensor<f32>, tensor<i32>) -> tensor<4xf32>
+  return %1 : tensor<4xf32>
+}
+
+// CHECK-LABEL: func @linspace_dynamic
+func @linspace_dynamic(%arg0: tensor<f32>, %arg1: tensor<f32>, %arg2: tensor<i32>) -> tensor<?xf32> {
+  // CHECK: "tf.LinSpace"
+  %0 = "tf.LinSpace"(%arg0, %arg1, %arg2) : (tensor<f32>, tensor<f32>, tensor<i32>) -> tensor<?xf32>
+  return %0 : tensor<?xf32>
 }
 
 //===----------------------------------------------------------------------===//

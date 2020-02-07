@@ -652,8 +652,12 @@ class BatchNormalizationBase(Layer):
 
     return (r, d, out_mean, out_variance)
 
+  def _calculate_mean_and_var(self, inputs, reduction_axes, keep_dims):
+    return nn.moments(inputs, reduction_axes, keep_dims=keep_dims)
+
   def _moments(self, inputs, reduction_axes, keep_dims):
-    mean, variance = nn.moments(inputs, reduction_axes, keep_dims=keep_dims)
+    mean, variance = self._calculate_mean_and_var(inputs, reduction_axes,
+                                                  keep_dims)
     # TODO(b/129279393): Support zero batch input in non DistributionStrategy
     # code as well.
     if self._support_zero_size_input():
@@ -1074,6 +1078,12 @@ class LayerNormalization(Layer):
       return v
 
     if not self._fused:
+      input_dtype = inputs.dtype
+      if input_dtype in ('float16', 'bfloat16') and self.dtype == 'float32':
+        # If mixed precision is used, cast inputs to float32 so that this is at
+        # least as numerically stable as the fused version.
+        inputs = math_ops.cast(inputs, 'float32')
+
       # Calculate the moments on the last axis (layer activations).
       mean, variance = nn.moments(inputs, self.axis, keep_dims=True)
 
@@ -1087,6 +1097,7 @@ class LayerNormalization(Layer):
           offset=offset,
           scale=scale,
           variance_epsilon=self.epsilon)
+      outputs = math_ops.cast(outputs, input_dtype)
     else:
       # Collapse dims before self.axis, and dims in self.axis
       pre_dim, in_dim = (1, 1)

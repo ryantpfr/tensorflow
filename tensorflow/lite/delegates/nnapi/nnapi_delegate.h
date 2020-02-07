@@ -27,9 +27,11 @@ typedef struct ANeuralNetworksMemory ANeuralNetworksMemory;
 
 namespace tflite {
 
-namespace delegate::nnapi {
+namespace delegate {
+namespace nnapi {
 class NNAPIDelegateKernel;
-}  // namespace delegate::nnapi
+}  // namespace nnapi
+}  // namespace delegate
 
 using tflite::delegate::nnapi::NNAPIDelegateKernel;
 

@@ -23,6 +23,8 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
+#include "absl/base/call_once.h"
+#include "absl/strings/match.h"
 #include "tensorflow/core/framework/allocation_description.pb.h"
 #include "tensorflow/core/framework/attr_value_util.h"
 #include "tensorflow/core/framework/device_attributes.pb.h"
@@ -161,23 +163,6 @@ Status OpKernel::OutputRange(StringPiece output_name, int* start,
   }
 }
 
-Status OpKernel::MakeShape(const Tensor& shape, TensorShape* out) const {
-  if (!IsLegacyVector(shape.shape())) {
-    return errors::InvalidArgument(
-        "shape must be a vector of {int32,int64}, got shape ",
-        shape.shape().DebugString());
-  }
-  if (shape.dtype() == DataType::DT_INT32) {
-    auto vec = shape.flat<int32>();
-    return TensorShapeUtils::MakeShape(vec.data(), vec.size(), out);
-  } else if (shape.dtype() == DataType::DT_INT64) {
-    auto vec = shape.flat<int64>();
-    return TensorShapeUtils::MakeShape(vec.data(), vec.size(), out);
-  } else {
-    return errors::InvalidArgument("shape must be a vector of {int32,int64}.");
-  }
-}
-
 string OpKernel::TraceString(OpKernelContext* ctx, bool verbose) {
   string trace_string = strings::StrCat(name_view(), ":", type_string_view());
   if (!verbose) return trace_string;
@@ -200,7 +185,7 @@ string OpKernel::TraceString(OpKernelContext* ctx, bool verbose) {
         DataTypeString(input_dtype), ctx->input(i).shape().DebugString()));
   }
   return strings::StrCat(trace_string, "#shape=(",
-                         absl::StrJoin(tensor_shapes, ","), ")#");
+                         absl::StrJoin(tensor_shapes, ";"), ")#");
 }
 
 void AsyncOpKernel::Compute(OpKernelContext* context) {
@@ -1226,8 +1211,8 @@ void LoadDynamicKernelsInternal() {
 void LoadDynamicKernels() {
   // TODO(gunan): As more features are available, add intelligent kernel
   // selection, and dropping unsuitable kernel logic here.
-  static std::once_flag dll_loader_flag;
-  std::call_once(dll_loader_flag, LoadDynamicKernelsInternal);
+  static absl::once_flag dll_loader_flag;
+  absl::call_once(dll_loader_flag, LoadDynamicKernelsInternal);
 }
 
 void* GlobalKernelRegistry() {
@@ -1405,6 +1390,7 @@ Status FindKernelDef(
       device_type, node_name, has_experimental_debug_info,
       experimental_debug_info, node_op, node_attrs, &reg, &was_attr_mismatch));
   if (reg == nullptr) {
+    std::string device_str = DeviceTypeString(device_type);
     Status s = errors::NotFound(
         "No registered '", node_op, "' OpKernel for ",
         DeviceTypeString(device_type), " devices compatible with node ",
@@ -1416,8 +1402,14 @@ Status FindKernelDef(
           "Requested Attributes: ",
           SummarizeAttrsHelper(node_attrs, node_device));
     }
-    errors::AppendToMessage(&s,
-                            ".  Registered:", KernelsRegisteredForOp(node_op));
+
+    // Do not print kernel registrations for other devices when using _JIT
+    // devices for compilation.
+    if (!absl::StrContains(device_str, "JIT")) {
+      errors::AppendToMessage(
+          &s, ".  Registered:", KernelsRegisteredForOp(node_op));
+    }
+
     return s;
   }
   if (def != nullptr) *def = &reg->def;

@@ -3342,7 +3342,7 @@ TfLiteStatus NNAPIDelegateKernel::Invoke(TfLiteContext* context,
     TfLiteTensor* tensor = &context->tensors[state_tensor_idx];
     // Here we are using a deep copy for state_in tensors so that we are not
     // reading and writing into the same buffer during a invocation.
-    // TODO(110369471): using double shared buffer to minimize the copies.
+    // TODO(b/110369471): using double shared buffer to minimize the copies.
     RETURN_TFLITE_ERROR_IF_NN_ERROR(
         context,
         nnapi_->ANeuralNetworksExecution_setOutput(
