@@ -16,16 +16,16 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
 namespace {
 
 void TestFloor(const int32_t* input_dims_data, const float* input_data,
-               const float* expected_output_data, const int32_t* output_dims_data,
-               float* output_data) {
+               const float* expected_output_data,
+               const int32_t* output_dims_data, float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);

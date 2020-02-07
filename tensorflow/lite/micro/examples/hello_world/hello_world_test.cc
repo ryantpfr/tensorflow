@@ -16,9 +16,9 @@ limitations under the License.
 // #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/examples/hello_world/sine_model_data.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
+#include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 #include "tensorflow/lite/version.h"
@@ -43,7 +43,7 @@ TF_LITE_MICRO_TEST(LoadModelAndPerformInference) {
   // This pulls in all the operation implementations we need
   static tflite::MicroMutableOpResolver resolver;
   resolver.AddBuiltin(tflite::BuiltinOperator_FULLY_CONNECTED,
-                                       tflite::ops::micro::Register_FULLY_CONNECTED(),3,3);
+                      tflite::ops::micro::Register_FULLY_CONNECTED(), 3, 3);
 
   // Create an area of memory to use for input, output, and intermediate arrays.
   // Finding the minimum value for your model may require some trial and error.

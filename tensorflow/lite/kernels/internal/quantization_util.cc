@@ -13,12 +13,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
+#include "tensorflow/lite/kernels/internal/quantization_util.h"
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
 
 #include "tensorflow/lite/kernels/internal/compatibility.h"
-#include "tensorflow/lite/kernels/internal/quantization_util.h"
 #include "tensorflow/lite/kernels/internal/round.h"
 
 namespace tflite {
@@ -288,8 +289,9 @@ void PreprocessSoftmaxScaling(double beta, double input_scale,
     input_beta_real_multiplier = (1ll << 31) - 1.0;
   }
 #else   // TFLITE_EMULATE_FLOAT
-  const double input_beta_real_multiplier = std::min(
-      beta * input_scale * (1ll << (31 - input_integer_bits)), (1ll << 31) - 1.0);
+  const double input_beta_real_multiplier =
+      std::min(beta * input_scale * (1ll << (31 - input_integer_bits)),
+               (1ll << 31) - 1.0);
 #endif  // TFLITE_EMULATE_FLOAT
 
   QuantizeMultiplierGreaterThanOne(input_beta_real_multiplier,
@@ -314,7 +316,7 @@ void PreprocessLogSoftmaxScalingExp(double beta, double input_scale,
 }
 
 int32_t CalculateInputRadius(int input_integer_bits, int input_left_shift,
-                         int total_signed_bits) {
+                             int total_signed_bits) {
 #ifdef TFLITE_EMULATE_FLOAT
   int64_t result = (static_cast<int32_t>(1) << input_integer_bits) - 1;
   result <<= (total_signed_bits - input_integer_bits);

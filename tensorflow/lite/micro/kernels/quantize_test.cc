@@ -54,7 +54,8 @@ void TestQuantize(const int32_t* input_dims_data, const float* input_data,
   PopulateContext(tensors, tensors_size, &context);
 
   // Version 1 of quantize supports int8 and uint8 quantization.
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_QUANTIZE();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_QUANTIZE();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 

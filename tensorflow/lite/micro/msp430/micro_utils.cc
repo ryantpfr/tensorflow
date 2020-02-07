@@ -77,8 +77,8 @@ uint8_t FloatToSymmetricQuantizedUInt8(const float value, const float scale) {
 int8_t FloatToAsymmetricQuantizedInt8(const float value, const float scale,
                                       const int zero_point) {
   auto o = FloatToAsymmetricQuantizedUInt8(value, scale,
-                                         zero_point - kAsymmetricInt8Min) +
-         kAsymmetricInt8Min;
+                                           zero_point - kAsymmetricInt8Min) +
+           kAsymmetricInt8Min;
   return o;
 }
 
@@ -99,7 +99,7 @@ int32_t FloatToSymmetricQuantizedInt32(const float value, const float scale) {
 void AsymmetricQuantize(const float* input, int8_t* output, int num_elements,
                         float scale, int zero_point) {
   for (int i = 0; i < num_elements; i++) {
-      auto o = FloatToAsymmetricQuantizedInt8(input[i], scale, zero_point);
+    auto o = FloatToAsymmetricQuantizedInt8(input[i], scale, zero_point);
     output[i] = o;
   }
 }

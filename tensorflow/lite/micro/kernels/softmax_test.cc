@@ -16,8 +16,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -43,7 +43,8 @@ void TestSoftmaxFloat(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_SOFTMAX();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_SOFTMAX();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSoftmaxParams builtin_data = {1.0f};
@@ -107,7 +108,8 @@ void TestSoftmaxQuantized(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_SOFTMAX();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_SOFTMAX();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSoftmaxParams builtin_data = {1.0f};
@@ -171,7 +173,8 @@ void TestSoftmaxQuantizedSigned(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_SOFTMAX();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_SOFTMAX();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteSoftmaxParams builtin_data = {1.0f};

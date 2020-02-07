@@ -88,21 +88,21 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteNode* node,
     // array. but data->per_channel_output_shift needs to be an int32_t for
     // the per-channel quantize impl we cast it to an int here and if we
     // have less than 32 bit ints, copy to the original size.
-    int *per_chan_shift = reinterpret_cast<int*>(data->per_channel_output_shift);
+    int* per_chan_shift =
+        reinterpret_cast<int*>(data->per_channel_output_shift);
 
     TF_LITE_ENSURE_STATUS(tflite::PopulateConvolutionQuantizationParams(
         context, input, filter, bias, output, params->activation,
         &data->output_multiplier, &data->output_shift,
         &data->output_activation_min, &data->output_activation_max,
-        data->per_channel_output_multiplier,
-        per_chan_shift, num_channels));
+        data->per_channel_output_multiplier, per_chan_shift, num_channels));
 
-    if(sizeof(int)<sizeof(int32_t)){ // The compiler should optimize this out
-        for(int i = kMaxChannels-1; i >= 0; i--){
-            data->per_channel_output_shift[i] = per_chan_shift[i];
-        }
+    if (sizeof(int) <
+        sizeof(int32_t)) {  // The compiler should optimize this out
+      for (int i = kMaxChannels - 1; i >= 0; i--) {
+        data->per_channel_output_shift[i] = per_chan_shift[i];
+      }
     }
-
   }
   return kTfLiteOk;
 }

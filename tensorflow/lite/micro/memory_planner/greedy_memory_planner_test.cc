@@ -260,7 +260,7 @@ TF_LITE_MICRO_TEST(TestSmallScratch) {
 
   // calculate scratch_buffer_size since it could be twice as large on
   // some platforms as others.
-  constexpr int scratch_buffer_size = 7*sizeof(int) + 2*sizeof(size_t);
+  constexpr int scratch_buffer_size = 7 * sizeof(int) + 2 * sizeof(size_t);
   unsigned char scratch_buffer[scratch_buffer_size];
   tflite::GreedyMemoryPlanner planner(scratch_buffer, scratch_buffer_size);
   TF_LITE_MICRO_EXPECT_EQ(kTfLiteOk,

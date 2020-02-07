@@ -17,8 +17,8 @@ limitations under the License.
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/test_helpers.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -137,7 +137,8 @@ void TestPadV2Float(const int32_t* input_dims_data, const float* input_data,
                     TfLiteStatus expected_status = kTfLiteOk) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* pad_dims = IntArrayFromInts(pad_dims_data);
-  const int32_t pad_value_dims_data[] = {1, 1};  // Only one padding value allowed.
+  const int32_t pad_value_dims_data[] = {1,
+                                         1};  // Only one padding value allowed.
   TfLiteIntArray* pad_value_dims = IntArrayFromInts(pad_value_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);
@@ -204,7 +205,8 @@ void TestPadV2Quantized(const int32_t* input_dims_data, const float* input_data,
                         TfLiteStatus expected_status = kTfLiteOk) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* pad_dims = IntArrayFromInts(pad_dims_data);
-  const int32_t pad_value_dims_data[] = {1, 1};  // Only one padding value allowed.
+  const int32_t pad_value_dims_data[] = {1,
+                                         1};  // Only one padding value allowed.
   TfLiteIntArray* pad_value_dims = IntArrayFromInts(pad_value_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   T pad_value_quantized;

@@ -15,8 +15,8 @@ limitations under the License.
 
 // A specializable function that sets up the target device directly after the
 // test starts. This is called by TF_LITE_MICRO_TESTS_BEGIN, but is included
-// as a separate cc file so that the project generation system can swap in 
-// device-specific code. 
+// as a separate cc file so that the project generation system can swap in
+// device-specific code.
 //
 // Example: for MSP430 the watchdog timer needs to be stopped or else the
 // program will unexpectedly reset.

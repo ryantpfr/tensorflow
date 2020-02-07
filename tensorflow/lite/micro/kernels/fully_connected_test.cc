@@ -18,8 +18,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -50,7 +50,8 @@ void TestFullyConnectedFloat(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_FULLY_CONNECTED();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_FULLY_CONNECTED();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteFullyConnectedParams builtin_data = {
@@ -95,12 +96,12 @@ void TestFullyConnectedFloat(
 template <typename T>
 void TestFullyConnectedQuantized(
     const int32_t* input_dims_data, const T* input_data, const float input_min,
-    const float input_max, const int32_t* weights_dims_data, const T* weights_data,
-    const float weights_min, const float weights_max, const int32_t* bias_dims_data,
-    const int32_t* bias_data, const float bias_scale,
-    const T* expected_output_data, const int32_t* output_dims_data,
-    const float output_min, const float output_max,
-    TfLiteFusedActivation activation, T* output_data) {
+    const float input_max, const int32_t* weights_dims_data,
+    const T* weights_data, const float weights_min, const float weights_max,
+    const int32_t* bias_dims_data, const int32_t* bias_data,
+    const float bias_scale, const T* expected_output_data,
+    const int32_t* output_dims_data, const float output_min,
+    const float output_max, TfLiteFusedActivation activation, T* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* weights_dims = IntArrayFromInts(weights_dims_data);
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
@@ -123,7 +124,8 @@ void TestFullyConnectedQuantized(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_FULLY_CONNECTED();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_FULLY_CONNECTED();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteFullyConnectedParams builtin_data = {

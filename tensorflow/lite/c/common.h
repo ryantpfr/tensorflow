@@ -7,7 +7,7 @@ You may obtain a copy of the License at
     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,ß
+distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
@@ -114,7 +114,7 @@ void TfLiteIntArrayFree(TfLiteIntArray* a);
 #endif  // TF_LITE_STATIC_MEMORY
 
 // Fixed size list of floats. Used for per-channel quantization.
-typedef struct TfLiteFloatArray{
+typedef struct TfLiteFloatArray {
   int32_t size;
 // gcc 6.1+ have a bug where flexible members aren't properly handled
 // https://github.com/google/re2/commit/b94b7cd42e9f02673cd748c1ac1d16db4052514c

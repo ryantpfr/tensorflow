@@ -62,8 +62,10 @@ inline void AddElementwise(int size, const ArithmeticParams& params,
   for (int i = 0; i < size; ++i) {
     const int32 input1_val = params.input1_offset + input1_data[i];
     const int32 input2_val = params.input2_offset + input2_data[i];
-    const int32 shifted_input1_val = input1_val * (static_cast<int32_t>(1) << params.left_shift);
-    const int32 shifted_input2_val = input2_val * (static_cast<int32_t>(1) << params.left_shift);
+    const int32 shifted_input1_val =
+        input1_val * (static_cast<int32_t>(1) << params.left_shift);
+    const int32 shifted_input2_val =
+        input2_val * (static_cast<int32_t>(1) << params.left_shift);
     const int32 scaled_input1_val =
         MultiplyByQuantizedMultiplierSmallerThanOneExp(
             shifted_input1_val, params.input1_multiplier, params.input1_shift);
@@ -94,13 +96,15 @@ inline void AddScalarBroadcast(int size, const ArithmeticParams& params,
   TFLITE_DCHECK_LT(params.input2_offset, 256);
 
   const int32 input1_val = params.input1_offset + input1_data;
-  const int32 shifted_input1_val = input1_val * (static_cast<int32_t>(1) << params.left_shift);
+  const int32 shifted_input1_val =
+      input1_val * (static_cast<int32_t>(1) << params.left_shift);
   const int32 scaled_input1_val =
       MultiplyByQuantizedMultiplierSmallerThanOneExp(
           shifted_input1_val, params.input1_multiplier, params.input1_shift);
   for (int i = 0; i < size; ++i) {
     const int32 input2_val = params.input2_offset + input2_data[i];
-    const int32 shifted_input2_val = input2_val * (static_cast<int32_t>(1) << params.left_shift);
+    const int32 shifted_input2_val =
+        input2_val * (static_cast<int32_t>(1) << params.left_shift);
     const int32 scaled_input2_val =
         MultiplyByQuantizedMultiplierSmallerThanOneExp(
             shifted_input2_val, params.input2_multiplier, params.input2_shift);

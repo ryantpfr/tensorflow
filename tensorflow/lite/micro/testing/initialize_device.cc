@@ -16,4 +16,4 @@ limitations under the License.
 #include "tensorflow/lite/micro/testing/initialize_device.h"
 
 // On many devices a noop is sufficient.
-void initialize_device(){}
+void initialize_device() {}

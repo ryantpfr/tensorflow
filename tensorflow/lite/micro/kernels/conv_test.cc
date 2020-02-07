@@ -57,7 +57,8 @@ TfLiteStatus ValidateConvGoldens(TfLiteTensor* tensors, int tensors_size,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_CONV_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_CONV_2D();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -135,12 +136,13 @@ void TestConvFloat(const int32_t* input_dims_data, const float* input_data,
 
 void TestConvQuantizedPerLayer(
     const int32_t* input_dims_data, const float* input_data,
-    uint8_t* input_quantized, float input_scale, const int32_t* filter_dims_data,
-    const float* filter_data, uint8_t* filter_quantized, float filter_scale,
-    const int32_t* bias_dims_data, const float* bias_data, int32_t* bias_quantized,
-    const int32_t* output_dims_data, const float* expected_output_data,
-    uint8_t* expected_output_quantized, uint8_t* output_data,
-    float output_scale, TfLiteConvParams* conv_params) {
+    uint8_t* input_quantized, float input_scale,
+    const int32_t* filter_dims_data, const float* filter_data,
+    uint8_t* filter_quantized, float filter_scale,
+    const int32_t* bias_dims_data, const float* bias_data,
+    int32_t* bias_quantized, const int32_t* output_dims_data,
+    const float* expected_output_data, uint8_t* expected_output_quantized,
+    uint8_t* output_data, float output_scale, TfLiteConvParams* conv_params) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* filter_dims = IntArrayFromInts(filter_dims_data);
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
@@ -485,17 +487,14 @@ TF_LITE_MICRO_TEST(FilterDimsNotMatchingAffineQuantization) {
   tensors[0] = tflite::testing::CreateQuantizedTensor(
       tflite::testing::kInputData, input_quantized, input_dims, input_scale, 0,
       "input_tensor");
-  tensors[1]  =
-      tflite::testing::CreateSymmetricPerChannelQuantizedTensor(
-          tflite::testing::kFilterData, filter_quantized, filter_dims,
-          filter_scales, filter_zero_points, &filter_quant,
-          0 /* quantized dimension */, "filter_tensor");
-  tensors[2]  =
-      tflite::testing::CreatePerChannelQuantizedBiasTensor(
-          tflite::testing::kBiasData, bias_quantized, bias_dims, input_scale,
-          &filter_scales[1], scales, zero_points, &bias_quant, 0,
-          "bias_tensor");
-  tensors[3]  = tflite::testing::CreateQuantizedTensor(
+  tensors[1] = tflite::testing::CreateSymmetricPerChannelQuantizedTensor(
+      tflite::testing::kFilterData, filter_quantized, filter_dims,
+      filter_scales, filter_zero_points, &filter_quant,
+      0 /* quantized dimension */, "filter_tensor");
+  tensors[2] = tflite::testing::CreatePerChannelQuantizedBiasTensor(
+      tflite::testing::kBiasData, bias_quantized, bias_dims, input_scale,
+      &filter_scales[1], scales, zero_points, &bias_quant, 0, "bias_tensor");
+  tensors[3] = tflite::testing::CreateQuantizedTensor(
       output_data, output_dims, output_scale, 0 /* quantized dimension */,
       "output_tensor");
 

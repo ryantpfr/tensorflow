@@ -14,6 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 #include "tensorflow/lite/micro/micro_error_reporter.h"
+
 #include "tensorflow/lite/micro/testing/initialize_device.h"
 
 int main(int argc, char** argv) {

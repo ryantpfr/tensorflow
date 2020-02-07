@@ -52,9 +52,9 @@ template <typename input_type = float,
 void TestStrideSlide(std::initializer_list<int32_t> input_shape,
                      std::initializer_list<int32_t> begin_shape,
                      std::initializer_list<int32_t> end_shape,
-                     std::initializer_list<int32_t> strides_shape, int begin_mask,
-                     int end_mask, int ellipsis_mask, int new_axis_mask,
-                     int shrink_axis_mask,
+                     std::initializer_list<int32_t> strides_shape,
+                     int begin_mask, int end_mask, int ellipsis_mask,
+                     int new_axis_mask, int shrink_axis_mask,
                      std::initializer_list<input_type> input_data,
                      std::initializer_list<int32_t> begin_data,
                      std::initializer_list<int32_t> end_data,
@@ -86,7 +86,8 @@ void TestStrideSlide(std::initializer_list<int32_t> input_shape,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_STRIDED_SLICE();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_STRIDED_SLICE();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
   TfLiteStridedSliceParams builtin_data = {begin_mask, end_mask, ellipsis_mask,
                                            new_axis_mask, shrink_axis_mask};

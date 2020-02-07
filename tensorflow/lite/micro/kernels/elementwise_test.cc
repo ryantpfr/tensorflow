@@ -150,10 +150,10 @@ TF_LITE_MICRO_TEST(Abs) {
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
       tflite::ops::micro::Register_ABS(),  // ABS operator
-      {2, 2, 2},                    // Input shape
-      {0.01, -0.01, 10, -10},       // Input values
-      {2, 2, 2},                    // Output shape
-      {0.01, 0.01, 10, 10},         // Output values
+      {2, 2, 2},                           // Input shape
+      {0.01, -0.01, 10, -10},              // Input values
+      {2, 2, 2},                           // Output shape
+      {0.01, 0.01, 10, 10},                // Output values
       output_data);
 }
 
@@ -161,11 +161,11 @@ TF_LITE_MICRO_TEST(Sin) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::ops::micro::Register_SIN(),    // SIN operator
-      {2, 2, 2},                      // Input shape
-      {0, 3.1415926, -3.1415926, 1},  // Input values
-      {2, 2, 2},                      // Output shape
-      {0, 0, 0, 0.84147},             // Output values
+      tflite::ops::micro::Register_SIN(),  // SIN operator
+      {2, 2, 2},                           // Input shape
+      {0, 3.1415926, -3.1415926, 1},       // Input values
+      {2, 2, 2},                           // Output shape
+      {0, 0, 0, 0.84147},                  // Output values
       output_data);
 }
 
@@ -173,11 +173,11 @@ TF_LITE_MICRO_TEST(Cos) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::ops::micro::Register_COS(),    // COS operator
-      {2, 2, 2},                      // Input shape
-      {0, 3.1415926, -3.1415926, 1},  // Input values
-      {2, 2, 2},                      // Output shape
-      {1, -1, -1, 0.54030},           // Output values
+      tflite::ops::micro::Register_COS(),  // COS operator
+      {2, 2, 2},                           // Input shape
+      {0, 3.1415926, -3.1415926, 1},       // Input values
+      {2, 2, 2},                           // Output shape
+      {1, -1, -1, 0.54030},                // Output values
       output_data);
 }
 
@@ -185,11 +185,11 @@ TF_LITE_MICRO_TEST(Log) {
   constexpr int output_dims_count = 4;
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
-      tflite::ops::micro::Register_LOG(),    // LOG operator
-      {2, 2, 2},                      // Input shape
-      {1, 2.7182818, 0.5, 2},         // Input values
-      {2, 2, 2},                      // Output shape
-      {0, 1, -0.6931472, 0.6931472},  // Output values
+      tflite::ops::micro::Register_LOG(),  // LOG operator
+      {2, 2, 2},                           // Input shape
+      {1, 2.7182818, 0.5, 2},              // Input values
+      {2, 2, 2},                           // Output shape
+      {0, 1, -0.6931472, 0.6931472},       // Output values
       output_data);
 }
 
@@ -198,10 +198,10 @@ TF_LITE_MICRO_TEST(Sqrt) {
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
       tflite::ops::micro::Register_SQRT(),  // SQRT operator
-      {2, 2, 2},                     // Input shape
-      {0, 1, 2, 4},                  // Input values
-      {2, 2, 2},                     // Output shape
-      {0, 1, 1.41421, 2},            // Output values
+      {2, 2, 2},                            // Input shape
+      {0, 1, 2, 4},                         // Input values
+      {2, 2, 2},                            // Output shape
+      {0, 1, 1.41421, 2},                   // Output values
       output_data);
 }
 
@@ -210,10 +210,10 @@ TF_LITE_MICRO_TEST(Rsqrt) {
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
       tflite::ops::micro::Register_RSQRT(),  // RSQRT operator
-      {2, 2, 2},                      // Input shape
-      {1, 2, 4, 9},                   // Input values
-      {2, 2, 2},                      // Output shape
-      {1, 0.7071, 0.5, 0.33333},      // Output values
+      {2, 2, 2},                             // Input shape
+      {1, 2, 4, 9},                          // Input values
+      {2, 2, 2},                             // Output shape
+      {1, 0.7071, 0.5, 0.33333},             // Output values
       output_data);
 }
 
@@ -222,10 +222,10 @@ TF_LITE_MICRO_TEST(Square) {
   float output_data[output_dims_count];
   tflite::testing::TestElementwiseFloat(
       tflite::ops::micro::Register_SQUARE(),  // SQARE operator
-      {2, 2, 2},                       // Input shape
-      {1, 2, 0.5, -3.0},               // Input values
-      {2, 2, 2},                       // Output shape
-      {1, 4.0, 0.25, 9.0},             // Output values
+      {2, 2, 2},                              // Input shape
+      {1, 2, 0.5, -3.0},                      // Input values
+      {2, 2, 2},                              // Output shape
+      {1, 4.0, 0.25, 9.0},                    // Output values
       output_data);
 }
 
@@ -234,10 +234,10 @@ TF_LITE_MICRO_TEST(LogicalNot) {
   bool output_data[output_dims_count];
   tflite::testing::TestElementwiseBool(
       tflite::ops::micro::Register_LOGICAL_NOT(),  // Logical NOT operator
-      {2, 2, 2},                            // Input shape
-      {true, false, false, true},           // Input values
-      {2, 2, 2},                            // Output shape
-      {false, true, true, false},           // Output values
+      {2, 2, 2},                                   // Input shape
+      {true, false, false, true},                  // Input values
+      {2, 2, 2},                                   // Output shape
+      {false, true, true, false},                  // Output values
       output_data);
 }
 

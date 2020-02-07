@@ -551,9 +551,9 @@ TfLiteTensor CreateQuantizedBiasTensor(const float* data, int32_t* quantized,
 // scale multiplied by weight scale for each channel.
 TfLiteTensor CreatePerChannelQuantizedBiasTensor(
     const float* input, int32_t* quantized, TfLiteIntArray* dims,
-    float input_scale, float* weight_scales, float* scales, int32_t* zero_points,
-    TfLiteAffineQuantization* affine_quant, int quantized_dimension,
-    const char* name, bool is_variable) {
+    float input_scale, float* weight_scales, float* scales,
+    int32_t* zero_points, TfLiteAffineQuantization* affine_quant,
+    int quantized_dimension, const char* name, bool is_variable) {
   int input_size = ElementCount(*dims);
   int num_channels = dims->data[quantized_dimension];
   // First element is reserved for array length

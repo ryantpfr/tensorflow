@@ -334,12 +334,12 @@ void GreedyMemoryPlanner::PrintMemoryPlan(ErrorReporter* error_reporter) {
     // ::Report, which causes a va_list related error. I believe
     // this is a compiler bug but its hard to reproduce so I will
     // wrap the call as a quick fix.
-    [error_reporter](char *format, ...){
-        va_list args;
-        va_start(args, format);
-        error_reporter->Report(format, args);
-        va_end(args);
-    }("%s",line);
+    [error_reporter](char* format, ...) {
+      va_list args;
+      va_start(args, format);
+      error_reporter->Report(format, args);
+      va_end(args);
+    }("%s", line);
   }
 }
 

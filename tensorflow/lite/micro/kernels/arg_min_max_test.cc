@@ -16,8 +16,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -69,8 +69,10 @@ void ValidateArgMinMaxGoldens(TfLiteTensor* tensors, int tensors_size,
   }
 }
 
-void TestArgMinMaxFloat(const int32_t* input_dims_data, const float* input_values,
-                        const int32_t* axis_dims_data, const int32_t* axis_values,
+void TestArgMinMaxFloat(const int32_t* input_dims_data,
+                        const float* input_values,
+                        const int32_t* axis_dims_data,
+                        const int32_t* axis_values,
                         const int32_t* output_dims_data, int32_t* output,
                         const int32_t* goldens, bool using_min) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);

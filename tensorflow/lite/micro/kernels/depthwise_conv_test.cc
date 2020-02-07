@@ -41,7 +41,8 @@ TfLiteStatus ValidateDepthwiseConvGoldens(TfLiteTensor* tensors,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_DEPTHWISE_CONV_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_DEPTHWISE_CONV_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   int input_depth = tensors[0].dims->data[3];
@@ -97,14 +98,12 @@ TfLiteStatus ValidateDepthwiseConvGoldens(TfLiteTensor* tensors,
   return kTfLiteOk;
 }
 
-void TestDepthwiseConvFloat(const int32_t* input_dims_data, const float* input_data,
-                            const int32_t* filter_dims_data,
-                            const float* filter_data, const int32_t* bias_dims_data,
-                            const float* bias_data,
-                            const float* expected_output_data,
-                            const int32_t* output_dims_data,
-                            TfLiteFusedActivation activation,
-                            float* output_data) {
+void TestDepthwiseConvFloat(
+    const int32_t* input_dims_data, const float* input_data,
+    const int32_t* filter_dims_data, const float* filter_data,
+    const int32_t* bias_dims_data, const float* bias_data,
+    const float* expected_output_data, const int32_t* output_dims_data,
+    TfLiteFusedActivation activation, float* output_data) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* filter_dims = IntArrayFromInts(filter_dims_data);
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
@@ -128,28 +127,28 @@ void TestDepthwiseConvQuantizedPerLayer(
     uint8_t* input_quantized, float input_scale, int input_zero_point,
     const int32_t* filter_dims_data, const float* filter_data,
     uint8_t* filter_quantized, float filter_scale, int filter_zero_point,
-    const int32_t* bias_dims_data, const float* bias_data, int32_t* bias_quantized,
-    const float* golden, uint8_t* golden_quantized, const int32_t* output_dims_data,
-    uint8_t* output_data, float output_scale, int output_zero_point,
-    TfLiteFusedActivation activation) {
+    const int32_t* bias_dims_data, const float* bias_data,
+    int32_t* bias_quantized, const float* golden, uint8_t* golden_quantized,
+    const int32_t* output_dims_data, uint8_t* output_data, float output_scale,
+    int output_zero_point, TfLiteFusedActivation activation) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
   TfLiteIntArray* filter_dims = IntArrayFromInts(filter_dims_data);
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInts(output_dims_data);
   const int output_dims_count = ElementCount(*output_dims);
 
-  tensors[0] = tflite::testing::CreateQuantizedTensor(input_data, input_quantized,
-                                             input_dims, input_scale,
-                                             input_zero_point, "input_tensor");
+  tensors[0] = tflite::testing::CreateQuantizedTensor(
+      input_data, input_quantized, input_dims, input_scale, input_zero_point,
+      "input_tensor");
   tensors[1] = tflite::testing::CreateQuantizedTensor(
-          filter_data, filter_quantized, filter_dims, filter_scale,
-          filter_zero_point, "filter_tensor");
-  tensors[2] = tflite::testing::CreateQuantizedBiasTensor(bias_data, bias_quantized,
-                                                 bias_dims, input_scale,
-                                                 filter_scale, "bias_tensor");
-  tensors[3] = tflite::testing::CreateQuantizedTensor(output_data, output_dims,
-                                             output_scale, output_zero_point,
-                                             "output_tensor");
+      filter_data, filter_quantized, filter_dims, filter_scale,
+      filter_zero_point, "filter_tensor");
+  tensors[2] = tflite::testing::CreateQuantizedBiasTensor(
+      bias_data, bias_quantized, bias_dims, input_scale, filter_scale,
+      "bias_tensor");
+  tensors[3] = tflite::testing::CreateQuantizedTensor(
+      output_data, output_dims, output_scale, output_zero_point,
+      "output_tensor");
 
   // TODO(njeff): Affine Quantization Params should be set on tensor creation.
   float filter_scales[] = {1, filter_scale};
@@ -204,9 +203,8 @@ void TestDepthwiseConvQuantizedPerChannel(
       bias_data, bias_data_quantized, bias_dims, input_scale, &filter_scales[1],
       bias_scales, bias_zero_points, &bias_quant, 3 /* quantized dimension */,
       "bias_tensor");
-  tensors[3] =
-      CreateQuantizedTensor(output_data, output_dims, output_scale,
-                            input_zero_point, "output_tensor");
+  tensors[3] = CreateQuantizedTensor(output_data, output_dims, output_scale,
+                                     input_zero_point, "output_tensor");
 
   // TODO(njeff): Affine Quantization Params should be set on tensor creation.
   float input_scales[] = {1, input_scale};
@@ -629,17 +627,19 @@ TF_LITE_MICRO_TEST(FilterDimsNotMatchingAffineQuantization) {
       filter_tensor.quantization.params);
   quant->scale->size = 2;
   TF_LITE_MICRO_EXPECT_EQ(
-      kTfLiteError, tflite::testing::ValidateDepthwiseConvGoldens(
-              tflite::testing::tensors, tensors_size, golden_quantized, output_data,
-                        output_size, kTfLiteActNone));
+      kTfLiteError,
+      tflite::testing::ValidateDepthwiseConvGoldens(
+          tflite::testing::tensors, tensors_size, golden_quantized, output_data,
+          output_size, kTfLiteActNone));
 
   // Set scale back to correct dimension, and make zero point array too short.
   quant->scale->size = filter_shape[0];
   quant->zero_point->size = 2;
   TF_LITE_MICRO_EXPECT_EQ(
-      kTfLiteError, tflite::testing::ValidateDepthwiseConvGoldens(
-              tflite::testing::tensors, tensors_size, golden_quantized, output_data,
-                        output_size, kTfLiteActNone));
+      kTfLiteError,
+      tflite::testing::ValidateDepthwiseConvGoldens(
+          tflite::testing::tensors, tensors_size, golden_quantized, output_data,
+          output_size, kTfLiteActNone));
 }
 
 TF_LITE_MICRO_TEST(PerChannelBroadcastQuantizationParams) {

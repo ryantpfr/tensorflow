@@ -16,8 +16,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -77,14 +77,17 @@ void TestMaxMinFloat(const TfLiteRegistration* registration,
   }
 }
 
-void TestMaxMinQuantized(
-    const TfLiteRegistration* registration, std::initializer_list<int32_t> input1_dims_data,
-    std::initializer_list<uint8_t> input1_data, float input1_min,
-    float input1_max, std::initializer_list<int32_t> input2_dims_data,
-    std::initializer_list<uint8_t> input2_data, float input2_min,
-    float input2_max, std::initializer_list<uint8_t> expected_output_data,
-    float output_min, float output_max,
-    std::initializer_list<int32_t> output_dims_data, uint8_t* output_data) {
+void TestMaxMinQuantized(const TfLiteRegistration* registration,
+                         std::initializer_list<int32_t> input1_dims_data,
+                         std::initializer_list<uint8_t> input1_data,
+                         float input1_min, float input1_max,
+                         std::initializer_list<int32_t> input2_dims_data,
+                         std::initializer_list<uint8_t> input2_data,
+                         float input2_min, float input2_max,
+                         std::initializer_list<uint8_t> expected_output_data,
+                         float output_min, float output_max,
+                         std::initializer_list<int32_t> output_dims_data,
+                         uint8_t* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
   TfLiteIntArray* input2_dims = IntArrayFromInitializer(input2_dims_data);
   TfLiteIntArray* output_dims = IntArrayFromInitializer(output_dims_data);
@@ -134,7 +137,8 @@ void TestMaxMinQuantized(
 }
 
 void TestMaxMinQuantizedInt32(
-    const TfLiteRegistration* registration, std::initializer_list<int32_t> input1_dims_data,
+    const TfLiteRegistration* registration,
+    std::initializer_list<int32_t> input1_dims_data,
     std::initializer_list<int32_t> input1_data, float input1_scale,
     std::initializer_list<int32_t> input2_dims_data,
     std::initializer_list<int32_t> input2_data, float input2_scale,

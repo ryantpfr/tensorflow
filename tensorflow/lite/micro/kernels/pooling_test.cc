@@ -18,8 +18,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -49,7 +49,8 @@ void TestAveragePoolingFloat(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {padding,      stride_width,  stride_height,
@@ -121,7 +122,8 @@ void TestAveragePoolingQuantized(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_AVERAGE_POOL_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_AVERAGE_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {padding,      stride_width,  stride_height,
@@ -186,7 +188,8 @@ void TestMaxPoolFloat(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_MAX_POOL_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_MAX_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {
@@ -260,7 +263,8 @@ void TestMaxPoolQuantized(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_MAX_POOL_2D();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_MAX_POOL_2D();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLitePoolParams builtin_data = {

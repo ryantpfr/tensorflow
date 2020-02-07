@@ -52,7 +52,8 @@ class GreedyMemoryPlanner : public MemoryPlanner {
   // calling AddBuffer(). The memory can be reused once you're done with the
   // planner, as long as you copy the calculated offsets to another location.
   // Each buffer requires about 36 bytes of scratch.
-  GreedyMemoryPlanner(unsigned char* scratch_buffer, size_t scratch_buffer_size);
+  GreedyMemoryPlanner(unsigned char* scratch_buffer,
+                      size_t scratch_buffer_size);
   ~GreedyMemoryPlanner() override;
 
   // Record details of a buffer we want to place.

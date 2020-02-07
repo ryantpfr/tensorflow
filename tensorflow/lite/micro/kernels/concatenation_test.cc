@@ -17,8 +17,8 @@ limitations under the License.
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/testing/test_utils.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
+#include "tensorflow/lite/micro/testing/test_utils.h"
 
 namespace tflite {
 namespace testing {
@@ -47,7 +47,8 @@ void TestConcatenateTwoInputs(std::initializer_list<int32_t> input1_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_CONCATENATION();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_CONCATENATION();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteConcatenationParams builtin_data = {
@@ -107,7 +108,8 @@ void TestConcatenateQuantizedTwoInputs(
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_CONCATENATION();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_CONCATENATION();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteConcatenationParams builtin_data = {
@@ -150,18 +152,22 @@ TF_LITE_MICRO_TEST(TwoInputsAllAxesCombinations) {
   // Concatenate the same two input tensors along all possible axes.
 
   std::initializer_list<int32_t> input_shape = {2, 2, 3};
-  std::initializer_list<float> input1_value = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f};
-  std::initializer_list<float> input2_value = {7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
+  std::initializer_list<float> input1_value = {1.0f, 2.0f, 3.0f,
+                                               4.0f, 5.0f, 6.0f};
+  std::initializer_list<float> input2_value = {7.0f,  8.0f,  9.0f,
+                                               10.0f, 11.0f, 12.0f};
 
   // expected output when concatenating on axis 0
   std::initializer_list<int32_t> output_shape_axis0 = {2, 4, 3};
-  std::initializer_list<float> output_value_axis0 = {1.0f, 2.0f, 3.0f, 4.0f,  5.0f,  6.0f,
-                             7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
+  std::initializer_list<float> output_value_axis0 = {1.0f, 2.0f,  3.0f,  4.0f,
+                                                     5.0f, 6.0f,  7.0f,  8.0f,
+                                                     9.0f, 10.0f, 11.0f, 12.0f};
 
   // expected output when concatenating on axis 1
   std::initializer_list<int32_t> output_shape_axis1 = {2, 2, 6};
-  std::initializer_list<float> output_value_axis1 = {1.0f, 2.0f, 3.0f, 7.0f,  8.0f,  9.0f,
-                             4.0f, 5.0f, 6.0f, 10.0f, 11.0f, 12.0f};
+  std::initializer_list<float> output_value_axis1 = {1.0f, 2.0f,  3.0f,  7.0f,
+                                                     8.0f, 9.0f,  4.0f,  5.0f,
+                                                     6.0f, 10.0f, 11.0f, 12.0f};
 
   float output_data[12];
 
@@ -231,10 +237,12 @@ TF_LITE_MICRO_TEST(ThreeDimensionalTwoInputsDifferentShapes) {
   std::initializer_list<int32_t> output_shape = {3, 2, 4, 2};
 
   std::initializer_list<float> input1_value = {1.0f, 3.0f, 4.0f, 7.0f};
-  std::initializer_list<float> input2_value = {1.0f, 2.0f, 3.0f, 4.0f,  5.0f,  6.0f,
-                       7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
-  std::initializer_list<float> output_value = {1.0f, 3.0f, 1.0f, 2.0f, 3.0f, 4.0f,  5.0f,  6.0f,
-                       4.0f, 7.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
+  std::initializer_list<float> input2_value = {1.0f, 2.0f,  3.0f,  4.0f,
+                                               5.0f, 6.0f,  7.0f,  8.0f,
+                                               9.0f, 10.0f, 11.0f, 12.0f};
+  std::initializer_list<float> output_value = {
+      1.0f, 3.0f, 1.0f, 2.0f, 3.0f, 4.0f,  5.0f,  6.0f,
+      4.0f, 7.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f};
 
   float output_data[16];
   tflite::testing::TestConcatenateTwoInputs(

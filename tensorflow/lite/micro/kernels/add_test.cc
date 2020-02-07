@@ -47,18 +47,18 @@ const float
 
 const int broadcast_max_shape_size = 5;
 const int32_t broadcast_input2_shapes[broadcast_num_shapes]
-                                 [broadcast_max_shape_size] = {
-                                     {4, 1, 1, 3, 2},
-                                     {4, 1, 3, 1, 2},
-                                     {4, 2, 1, 3, 1},
-                                     {4, 2, 3, 1, 1},
+                                     [broadcast_max_shape_size] = {
+                                         {4, 1, 1, 3, 2},
+                                         {4, 1, 3, 1, 2},
+                                         {4, 2, 1, 3, 1},
+                                         {4, 2, 3, 1, 1},
 };
 const int32_t broadcast_output_shapes[broadcast_num_shapes]
-                                 [broadcast_max_shape_size] = {
-                                     {4, 2, 3, 3, 2},
-                                     {4, 2, 3, 1, 2},
-                                     {4, 2, 3, 3, 2},
-                                     {4, 2, 3, 1, 2},
+                                     [broadcast_max_shape_size] = {
+                                         {4, 2, 3, 3, 2},
+                                         {4, 2, 3, 1, 2},
+                                         {4, 2, 3, 3, 2},
+                                         {4, 2, 3, 1, 2},
 };
 
 template <typename T>

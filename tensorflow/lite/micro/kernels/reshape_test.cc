@@ -60,7 +60,8 @@ void TestReshapeImpl(TfLiteTensor* input_tensor, TfLiteTensor* shape_tensor,
     node.outputs = IntArrayFromInitializer({1, 2});
   }
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_RESHAPE();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_RESHAPE();
 
   void* user_data = nullptr;
   node.temporaries = nullptr;

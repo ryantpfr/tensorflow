@@ -286,7 +286,7 @@ void TestSVDF(const int batch_size, const int num_units, const int input_size,
   TfLiteIntArray* weights_time_dims = IntArrayFromInts(weights_time_dims_args);
 
   const int32_t activation_state_dims_args[] = {2, batch_size,
-                                            memory_size * num_filters};
+                                                memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
@@ -340,7 +340,7 @@ inline void TestIntegerSVDF(
   TfLiteIntArray* bias_dims = IntArrayFromInts(bias_dims_data);
 
   const int32_t activation_state_dims_args[] = {2, batch_size,
-                                            memory_size * num_filters};
+                                                memory_size * num_filters};
   TfLiteIntArray* activation_state_dims =
       IntArrayFromInts(activation_state_dims_args);
 
@@ -579,12 +579,12 @@ TF_LITE_MICRO_TEST(BlackBoxTestIntegerRank1) {
   const int output_dims_count = batch_size * num_units;
   int8_t output_data[output_dims_count];
 
-  float input_scale = 1.f / INT8_MAX;            // Range  is [-1, 1]
+  float input_scale = 1.f / INT8_MAX;             // Range  is [-1, 1]
   float weights_feature_scale = 0.5f / INT8_MAX;  // Range is [-0.5, 0.5]
   float weights_time_scale = 1.f / INT16_MAX;     // Range is [-1, 1]
-  float activation_scale = 16.f / INT16_MAX;     // Range is [-16, 16]
-  float bias_scale = 512.f / INT32_MAX;          // Range is [-512, 512]
-  float output_scale = 0.5f / INT8_MAX;          // Range is [-0.5, 0.5]
+  float activation_scale = 16.f / INT16_MAX;      // Range is [-16, 16]
+  float bias_scale = 512.f / INT32_MAX;           // Range is [-512, 512]
+  float output_scale = 0.5f / INT8_MAX;           // Range is [-0.5, 0.5]
 
   tflite::testing::TestIntegerSVDF(
       batch_size, num_units, input_size, memory_size, rank, input_data,

@@ -43,7 +43,8 @@ void TestLogisticFloat(std::initializer_list<int32_t> input_dims_data,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  const TfLiteRegistration* registration = tflite::ops::micro::Register_LOGISTIC();
+  const TfLiteRegistration* registration =
+      tflite::ops::micro::Register_LOGISTIC();
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   const char* init_data = nullptr;
