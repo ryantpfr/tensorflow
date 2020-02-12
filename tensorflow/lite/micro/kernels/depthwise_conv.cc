@@ -97,8 +97,7 @@ TfLiteStatus CalculateOpData(TfLiteContext* context, TfLiteNode* node,
         &data->output_activation_min, &data->output_activation_max,
         data->per_channel_output_multiplier, per_chan_shift, num_channels));
 
-    if (sizeof(int) <
-        sizeof(int32_t)) {  // The compiler should optimize this out
+    if (sizeof(int) < sizeof(int32_t)) {  // compiler should optimize this out
       for (int i = kMaxChannels - 1; i >= 0; i--) {
         data->per_channel_output_shift[i] = per_chan_shift[i];
       }

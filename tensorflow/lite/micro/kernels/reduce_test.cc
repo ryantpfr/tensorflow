@@ -15,7 +15,7 @@ limitations under the License.
 
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
 
@@ -25,17 +25,17 @@ namespace {
 
 // Common inputs and outputs.
 // static const int kInputElements4D = 24;
-static const int kInputShape4D[] = {4, 2, 2, 3, 2};
+static const int32_t kInputShape4D[] = {4, 2, 2, 3, 2};
 static const float kInputData4D[] = {
     1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0,  8.0,  9.0,  10.0, 11.0, 12.0,
     13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0};
 
 // static const int kAxisElements = 3;
-static const int kAxisShape[] = {1, 2};
+static const int32_t kAxisShape[] = {1, 2};
 static const int32_t kAxisData[] = {1, 2};
 
 static const int kOutputElements = 4;
-static const int kOutputShape[] = {4, 2, 1, 1, 2};
+static const int32_t kOutputShape[] = {4, 2, 1, 1, 2};
 static const float kGoldenData[] = {6, 7, 18, 19};
 
 static TfLiteReducerParams params = {
@@ -51,10 +51,7 @@ TfLiteStatus ValidateReduceGoldens(TfLiteTensor* tensors, int tensors_size,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-
-  const TfLiteRegistration* registration =
-      resolver.FindOp(tflite::BuiltinOperator_MEAN, 1);
+  const TfLiteRegistration* registration = tflite::ops::micro::Register_MEAN();
 
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
@@ -66,9 +63,9 @@ TfLiteStatus ValidateReduceGoldens(TfLiteTensor* tensors, int tensors_size,
     user_data = registration->init(&context, init_data, init_data_size);
   }
 
-  int inputs_array_data[] = {2, 0, 1};
+  int32_t inputs_array_data[] = {2, 0, 1};
   TfLiteIntArray* inputs_array = IntArrayFromInts(inputs_array_data);
-  int outputs_array_data[] = {1, 2};
+  int32_t outputs_array_data[] = {1, 2};
   TfLiteIntArray* outputs_array = IntArrayFromInts(outputs_array_data);
 
   TfLiteNode node;
@@ -102,9 +99,11 @@ TfLiteStatus ValidateReduceGoldens(TfLiteTensor* tensors, int tensors_size,
   return kTfLiteOk;
 }
 
-void TestMeanFloatInput4D(const int* input_dims_data, const float* input_data,
-                          const int* axis_dims_data, const int32_t* axis_data,
-                          const int* output_dims_data,
+void TestMeanFloatInput4D(const int32_t* input_dims_data,
+                          const float* input_data,
+                          const int32_t* axis_dims_data,
+                          const int32_t* axis_data,
+                          const int32_t* output_dims_data,
                           const float* expected_output_data, float* output_data,
                           TfLiteReducerParams* params, float tolerance = 1e-5) {
   TfLiteIntArray* input_dims = IntArrayFromInts(input_dims_data);
@@ -145,7 +144,7 @@ TF_LITE_MICRO_TEST(MeanFloat4DKeepDims) {
 }
 
 TF_LITE_MICRO_TEST(MeanFloat4DWithoutKeepDims) {
-  const int kOutputShape[] = {2, 2, 2};
+  const int32_t kOutputShape[] = {2, 2, 2};
   float output_data[tflite::testing::kOutputElements];
 
   TfLiteReducerParams params = {
@@ -159,11 +158,11 @@ TF_LITE_MICRO_TEST(MeanFloat4DWithoutKeepDims) {
 }
 
 TF_LITE_MICRO_TEST(MeanFloat4DWithoutKeepDimsWithPrecision) {
-  const int kInputShape4D[] = {4, 2, 2, 3, 1};
+  const int32_t kInputShape4D[] = {4, 2, 2, 3, 1};
   const float kInputData4D[] = {1.0,  24.0, 13.0, 3.0,  9.0,  17.0,
                                 11.0, 36.0, 14.0, 19.0, 17.0, 22.0};
   const int kOutputElements = 2;
-  const int kOutputShape[] = {2, 2, 1};
+  const int32_t kOutputShape[] = {2, 2, 1};
   const float kGoldenData[] = {11.166667, 19.833334};
   float output_data[kOutputElements];
 

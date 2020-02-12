@@ -105,7 +105,7 @@ inline bool InitTensorDataForReduce(const int* dims, const int num_dims,
   for (int idx = 0; idx < num_dims; ++idx) {
     size_t current = static_cast<size_t>(dims[idx]);
     // Overflow prevention.
-    if (num_elements > std::numeric_limits<size_t>::max() / current) {
+    if (num_elements > SIZE_MAX / current) {
       return false;
     }
     num_elements *= current;
@@ -159,7 +159,7 @@ inline bool Mean(const T* input_data, const int* input_dims,
   for (int idx = 0; idx < output_num_dims; ++idx) {
     size_t current = static_cast<size_t>(output_dims[idx]);
     // Overflow prevention.
-    if (num_outputs > std::numeric_limits<size_t>::max() / current) {
+    if (num_outputs > SIZE_MAX / current) {
       return false;
     }
     num_outputs *= current;
@@ -187,7 +187,7 @@ inline bool Mean(const T* input_data, const int* input_dims,
   for (int idx = 0; idx < num_resolved_axis; ++idx) {
     size_t current = static_cast<size_t>(input_dims[resolved_axis[idx]]);
     // Overflow prevention.
-    if (current > (std::numeric_limits<U>::max() / num_elements_in_axis)) {
+    if (current > (SIZE_MAX / num_elements_in_axis)) {
       return false;
     }
     num_elements_in_axis *= current;
@@ -329,7 +329,7 @@ inline bool QuantizedMeanOrSum(const T* input_data, int32 input_zero_point,
   for (int idx = 0; idx < output_num_dims; ++idx) {
     size_t current = static_cast<size_t>(output_dims[idx]);
     // Overflow prevention.
-    if (num_outputs > std::numeric_limits<size_t>::max() / current) {
+    if (num_outputs > SIZE_MAX / current) {
       return false;
     }
     num_outputs *= current;
