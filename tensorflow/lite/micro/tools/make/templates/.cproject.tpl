@@ -59,7 +59,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF.666882124" name="Use non-reentrant printf to reduce code size (-mtiny-printf)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.TINY_PRINTF" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT.989647006" name="Convert floating point constants to single precision constants (-fsingle-precision-constant)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.SINGLE_PRECISION_CONSTANT" value="false" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE.1565801239" name="Define symbols (-D)" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compilerID.DEFINE" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TFLITE_REGISTRATIONS_MAX=10"/>
+									<listOptionValue builtIn="false" value="TF_LITE_STATIC_MEMORY"/>
 									<listOptionValue builtIn="false" value="TFLITE_EMULATE_FLOAT"/>
 								</option>
 								<inputType id="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS.1753611917" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.MSP430_GNU_8.2.compiler.inputType__C_SRCS"/>
