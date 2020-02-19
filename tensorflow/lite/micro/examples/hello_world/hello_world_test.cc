@@ -41,7 +41,7 @@ TF_LITE_MICRO_TEST(LoadModelAndPerformInference) {
   }
 
   // This pulls in all the operation implementations we need
-  static tflite::MicroMutableOpResolver resolver;
+  static tflite::MicroOpResolver<1> resolver;
   resolver.AddBuiltin(tflite::BuiltinOperator_FULLY_CONNECTED,
                       tflite::ops::micro::Register_FULLY_CONNECTED(), 3, 3);
 

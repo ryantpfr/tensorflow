@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/micro/kernels/all_ops_resolver.h"
+#include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/testing/micro_test.h"
 #include "tensorflow/lite/micro/testing/test_utils.h"
 
@@ -22,12 +22,12 @@ namespace tflite {
 namespace testing {
 namespace {
 
-void TestLogicalOp(tflite::BuiltinOperator op,
-                   std::initializer_list<int> input1_dims_data,
+void TestLogicalOp(TfLiteRegistration* registration,
+                   std::initializer_list<int32_t> input1_dims_data,
                    std::initializer_list<bool> input1_data,
-                   std::initializer_list<int> input2_dims_data,
+                   std::initializer_list<int32_t> input2_dims_data,
                    std::initializer_list<bool> input2_data,
-                   std::initializer_list<int> output_dims_data,
+                   std::initializer_list<int32_t> output_dims_data,
                    std::initializer_list<bool> expected_output_data,
                    bool* output_data) {
   TfLiteIntArray* input1_dims = IntArrayFromInitializer(input1_dims_data);
@@ -47,8 +47,6 @@ void TestLogicalOp(tflite::BuiltinOperator op,
   TfLiteContext context;
   PopulateContext(tensors, tensors_size, &context);
 
-  ::tflite::ops::micro::AllOpsResolver resolver;
-  const TfLiteRegistration* registration = resolver.FindOp(op, 1);
   TF_LITE_MICRO_EXPECT_NE(nullptr, registration);
 
   TfLiteIntArray* inputs_array = IntArrayFromInitializer({2, 0, 1});
@@ -87,7 +85,7 @@ TF_LITE_MICRO_TESTS_BEGIN
 TF_LITE_MICRO_TEST(LogicalOr) {
   bool output_data[4];
   tflite::testing::TestLogicalOp(
-      tflite::BuiltinOperator_LOGICAL_OR,           // operator
+      tflite::ops::micro::Register_LOGICAL_OR(),    // operator
       {4, 1, 1, 1, 4}, {true, false, false, true},  // input1
       {4, 1, 1, 1, 4}, {true, false, true, false},  // input2
       {4, 1, 1, 1, 4}, {true, false, true, true},   // expected output
@@ -97,7 +95,7 @@ TF_LITE_MICRO_TEST(LogicalOr) {
 TF_LITE_MICRO_TEST(BroadcastLogicalOr) {
   bool output_data[4];
   tflite::testing::TestLogicalOp(
-      tflite::BuiltinOperator_LOGICAL_OR,           // operator
+      tflite::ops::micro::Register_LOGICAL_OR(),    // operator
       {4, 1, 1, 1, 4}, {true, false, false, true},  // input1
       {4, 1, 1, 1, 1}, {false},                     // input2
       {4, 1, 1, 1, 4}, {true, false, false, true},  // expected output
@@ -107,7 +105,7 @@ TF_LITE_MICRO_TEST(BroadcastLogicalOr) {
 TF_LITE_MICRO_TEST(LogicalAnd) {
   bool output_data[4];
   tflite::testing::TestLogicalOp(
-      tflite::BuiltinOperator_LOGICAL_AND,           // operator
+      tflite::ops::micro::Register_LOGICAL_AND(),    // operator
       {4, 1, 1, 1, 4}, {true, false, false, true},   // input1
       {4, 1, 1, 1, 4}, {true, false, true, false},   // input2
       {4, 1, 1, 1, 4}, {true, false, false, false},  // expected output
@@ -117,7 +115,7 @@ TF_LITE_MICRO_TEST(LogicalAnd) {
 TF_LITE_MICRO_TEST(BroadcastLogicalAnd) {
   bool output_data[4];
   tflite::testing::TestLogicalOp(
-      tflite::BuiltinOperator_LOGICAL_AND,          // operator
+      tflite::ops::micro::Register_LOGICAL_AND(),   // operator
       {4, 1, 1, 1, 4}, {true, false, false, true},  // input1
       {4, 1, 1, 1, 1}, {true},                      // input2
       {4, 1, 1, 1, 4}, {true, false, false, true},  // expected output
