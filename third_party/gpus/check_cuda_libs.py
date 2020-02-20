@@ -44,14 +44,14 @@ def _is_windows():
 
 
 def check_cuda_lib(path, check_soname=True):
-  """Tests if a library exists on disk and whether it's soname matches the filename.
+  """Tests if a library exists on disk and whether its soname matches the filename.
 
   Args:
     path: the path to the library.
     check_soname: whether to check the soname as well.
 
   Raises:
-    ConfigError: If the library does not exist or if it's soname doesn't match
+    ConfigError: If the library does not exist or if its soname does not match
     the filename.
   """
   if not os.path.isfile(path):
@@ -86,3 +86,4 @@ def main():
 
 if __name__ == "__main__":
   main()
+

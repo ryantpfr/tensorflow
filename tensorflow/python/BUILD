@@ -204,6 +204,8 @@ py_library(
         "//tensorflow/python/ops/ragged",
         "//tensorflow/python/ops/signal",
         "//tensorflow/python/profiler",
+        "//tensorflow/python/profiler:profiler_client",
+        "//tensorflow/python/profiler:profiler_v2",
         "//tensorflow/python/saved_model",
         "//tensorflow/python/tools:module_util",
         "//tensorflow/python/tools/api/generator:create_python_api",
@@ -215,6 +217,11 @@ py_library(
 tf_py_build_info_genrule(
     name = "py_build_info_gen",
     out = "platform/build_info.py",
+)
+
+py_library(
+    name = "platform_build_info",
+    srcs = ["platform/build_info.py"],
 )
 
 py_library(
@@ -2001,6 +2008,25 @@ py_library(
     ],
 )
 
+py_library(
+    name = "memory_checker",
+    srcs = [
+        "framework/memory_checker.py",
+        "framework/python_memory_checker.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [":_python_memory_checker_helper"],
+)
+
+tf_python_pybind_extension(
+    name = "_python_memory_checker_helper",
+    srcs = ["framework/python_memory_checker_helper.cc"],
+    module_name = "_python_memory_checker_helper",
+    deps = [
+        "@pybind11",
+    ],
+)
+
 tf_py_test(
     name = "framework_constant_op_test",
     size = "small",
@@ -2507,6 +2533,7 @@ tf_py_test(
     deps = [
         ":control_flow_ops",
         ":errors",
+        ":framework_combinations",
         ":framework_for_generated_wrappers",
         ":framework_test_lib",
         ":platform_test",
@@ -2519,6 +2546,37 @@ tf_py_test(
         "//tensorflow/python/eager:context",
         "//third_party/py/numpy",
         "@absl_py//absl/testing:parameterized",
+    ],
+)
+
+tf_py_test(
+    name = "framework_memory_checker_test",
+    size = "medium",
+    srcs = ["framework/memory_checker_test.py"],
+    main = "framework/memory_checker_test.py",
+    python_version = "PY3",
+    shard_count = 8,
+    tags = [
+        "no_oss",
+        "no_pip",
+        "no_windows",
+    ],
+    deps = [
+        ":framework_test_lib",
+        # TODO(kkb): Find more appropriate place to add `memory_checker` as deps
+        # Adding directly to `framework_test_lib` caused a Colab binary size
+        # regression b/149433910 .
+        ":memory_checker",
+        ":_memory_checker_test_helper",
+    ],
+)
+
+tf_python_pybind_extension(
+    name = "_memory_checker_test_helper",
+    srcs = ["framework/memory_checker_test_helper.cc"],
+    module_name = "_memory_checker_test_helper",
+    deps = [
+        "@pybind11",
     ],
 )
 
@@ -2567,6 +2625,8 @@ tf_py_test(
 tf_gen_op_wrapper_private_py(
     name = "array_ops_gen",
     visibility = [
+        # To pass open source testing in the pip Kokoros.
+        "//bazel_pip/tensorflow/compiler/tests:__pkg__",
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
@@ -2580,6 +2640,8 @@ tf_gen_op_wrapper_private_py(
 tf_gen_op_wrapper_private_py(
     name = "bitwise_ops_gen",
     visibility = [
+        # To pass open source testing in the pip Kokoros.
+        "//bazel_pip/tensorflow/compiler/tests:__pkg__",
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
         "//tensorflow/contrib/quantization:__pkg__",
@@ -2775,6 +2837,8 @@ tf_gen_op_wrapper_private_py(
 tf_gen_op_wrapper_private_py(
     name = "math_ops_gen",
     visibility = [
+        # To pass open source testing in the pip Kokoros.
+        "//bazel_pip/tensorflow/compiler/tests:__pkg__",
         "//learning/brain/google/python/ops:__pkg__",
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
@@ -2785,6 +2849,8 @@ tf_gen_op_wrapper_private_py(
 tf_gen_op_wrapper_private_py(
     name = "nn_ops_gen",
     visibility = [
+        # To pass open source testing in the pip Kokoros.
+        "//bazel_pip/tensorflow/compiler/tests:__pkg__",
         "//learning/brain/python/ops:__pkg__",
         "//tensorflow/compiler/tests:__pkg__",
         "//tensorflow/python/kernel_tests:__pkg__",
@@ -4376,7 +4442,7 @@ py_library(
     ],
 )
 
-py_test(
+cuda_py_test(
     name = "rnn_grad_test",
     srcs = ["ops/rnn_grad_test.py"],
     python_version = "PY3",
@@ -5016,7 +5082,10 @@ cuda_py_test(
     kernels = [
         "//tensorflow/core/kernels:libtfkernel_sobol_op.so",
     ],
-    tags = ["no_windows_gpu"],
+    tags = [
+        "no_oss",  # TODO(b/149565560)
+        "no_windows_gpu",
+    ],
     deps = [
         ":framework_for_generated_wrappers",
         ":framework_test_lib",
@@ -5691,6 +5760,10 @@ tf_py_wrap_cc(
         ":py_exception_registry",
         ":py_func_lib",
         ":py_record_reader_lib",
+        ":pybind11_absl",
+        ":pybind11_lib",
+        ":pybind11_status",
+        ":pybind11_proto",
         ":python_op_gen",
         ":tf_session_helper",
         "//third_party/python_runtime:headers",

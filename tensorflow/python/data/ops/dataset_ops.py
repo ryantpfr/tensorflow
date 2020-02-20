@@ -131,7 +131,7 @@ class DatasetV2(tracking_base.Trackable, composite_tensor.CompositeTensor):
   To create a dataset of all files matching a pattern, use
   `tf.data.Dataset.list_files`:
 
-  >>> dataset = tf.data.dataset.list_files("/path/*.txt")  # doctest: +SKIP
+  >>> dataset = tf.data.Dataset.list_files("/path/*.txt")  # doctest: +SKIP
 
   See `tf.data.FixedLengthRecordDataset` and `tf.data.Dataset.from_generator`
   for more ways to create datasets.
@@ -1483,7 +1483,7 @@ class DatasetV2(tracking_base.Trackable, composite_tensor.CompositeTensor):
     return PaddedBatchDataset(self, batch_size, padded_shapes, padding_values,
                               drop_remainder)
 
-  def map(self, map_func, num_parallel_calls=None):
+  def map(self, map_func, num_parallel_calls=None, deterministic=None):
     """Maps `map_func` across the elements of this dataset.
 
     This transformation applies `map_func` to each element of this dataset, and
@@ -1576,6 +1576,16 @@ name=None))
     >>> list(d.as_numpy_iterator())
     [b'HELLO', b'WORLD']
 
+    Performance can often be improved by setting `num_parallel_calls` so that
+    `map` will use multiple threads to process elements. If deterministic order
+    isn't required, it can also improve performance to set
+    `deterministic=False`.
+
+    >>> dataset = Dataset.range(1, 6)  # ==> [ 1, 2, 3, 4, 5 ]
+    >>> dataset = dataset.map(lambda x: x + 1,
+    ...     num_parallel_calls=tf.data.experimental.AUTOTUNE,
+    ...     deterministic=False)
+
     Args:
       map_func: A function mapping a dataset element to another dataset element.
       num_parallel_calls: (Optional.) A `tf.int32` scalar `tf.Tensor`,
@@ -1583,6 +1593,12 @@ name=None))
         If not specified, elements will be processed sequentially. If the value
         `tf.data.experimental.AUTOTUNE` is used, then the number of parallel
         calls is set dynamically based on available CPU.
+      deterministic: (Optional.) A boolean controlling whether determinism
+        should be traded for performance by allowing elements to be produced out
+        of order.  If `deterministic` is `None`, the
+        `tf.data.Options.experimental_deterministic` dataset option (`True` by
+        default) is used to decide whether to produce elements
+        deterministically.
 
     Returns:
       Dataset: A `Dataset`.
@@ -1591,7 +1607,11 @@ name=None))
       return MapDataset(self, map_func, preserve_cardinality=True)
     else:
       return ParallelMapDataset(
-          self, map_func, num_parallel_calls, preserve_cardinality=True)
+          self,
+          map_func,
+          num_parallel_calls,
+          deterministic,
+          preserve_cardinality=True)
 
   def flat_map(self, map_func):
     """Maps `map_func` across this dataset and flattens the result.
@@ -1714,9 +1734,13 @@ name=None))
     if num_parallel_calls is None:
       return InterleaveDataset(self, map_func, cycle_length, block_length)
     else:
-      return ParallelInterleaveDataset(self, map_func, cycle_length,
-                                       block_length, num_parallel_calls,
-                                       deterministic)
+      return ParallelInterleaveDataset(
+          self,
+          map_func,
+          cycle_length,
+          block_length,
+          num_parallel_calls,
+          deterministic=deterministic)
 
   def filter(self, predicate):
     """Filters this dataset according to `predicate`.
@@ -1776,10 +1800,18 @@ name=None))
 
     A "window" is a finite dataset of flat elements of size `size` (or possibly
     fewer if there are not enough input elements to fill the window and
-    `drop_remainder` evaluates to false).
+    `drop_remainder` evaluates to `False`).
+
+    The `shift` argument determines the number of input elements by which the
+    window moves on each iteration.  If windows and elements are both numbered
+    starting at 0, the first element in window `k` will be element `k * shift`
+    of the input dataset. In particular, the first element of the first window
+    will always be the first element of the input dataset.
 
     The `stride` argument determines the stride of the input elements, and the
     `shift` argument determines the shift of the window.
+
+    For example:
 
     >>> dataset = tf.data.Dataset.range(7).window(2)
     >>> for window in dataset:
@@ -1824,15 +1856,16 @@ name=None))
 
     Args:
       size: A `tf.int64` scalar `tf.Tensor`, representing the number of elements
-        of the input dataset to combine into a window.
+        of the input dataset to combine into a window. Must be positive.
       shift: (Optional.) A `tf.int64` scalar `tf.Tensor`, representing the
-        forward shift of the sliding window in each iteration. Defaults to
-        `size`.
+        number of input elements by which the window moves in each iteration.
+        Defaults to `size`. Must be positive.
       stride: (Optional.) A `tf.int64` scalar `tf.Tensor`, representing the
-        stride of the input elements in the sliding window.
+        stride of the input elements in the sliding window. Must be positive.
+        The default value of 1 means "retain every input element".
       drop_remainder: (Optional.) A `tf.bool` scalar `tf.Tensor`, representing
-        whether a window should be dropped in case its size is smaller than
-        `window_size`.
+        whether the last window should be dropped if its size is smaller than
+        `size`.
 
     Returns:
       Dataset: A `Dataset` of (nests of) windows -- a finite datasets of flat
@@ -2295,21 +2328,29 @@ class DatasetV1(DatasetV2):
                    padded_shapes=None,
                    padding_values=None,
                    drop_remainder=False):
-    return DatasetV1Adapter(super(DatasetV1, self).padded_batch(
-        batch_size, padded_shapes, padding_values, drop_remainder))
+    return DatasetV1Adapter(
+        super(DatasetV1, self).padded_batch(batch_size, padded_shapes,
+                                            padding_values, drop_remainder))
 
   @functools.wraps(DatasetV2.map)
-  def map(self, map_func, num_parallel_calls=None):
+  def map(self, map_func, num_parallel_calls=None, deterministic=None):
     if num_parallel_calls is None:
       return DatasetV1Adapter(
           MapDataset(self, map_func, preserve_cardinality=False))
     else:
       return DatasetV1Adapter(
           ParallelMapDataset(
-              self, map_func, num_parallel_calls, preserve_cardinality=False))
+              self,
+              map_func,
+              num_parallel_calls,
+              deterministic,
+              preserve_cardinality=False))
 
   @deprecation.deprecated(None, "Use `tf.data.Dataset.map()")
-  def map_with_legacy_function(self, map_func, num_parallel_calls=None):
+  def map_with_legacy_function(self,
+                               map_func,
+                               num_parallel_calls=None,
+                               deterministic=None):
     """Maps `map_func` across the elements of this dataset.
 
     NOTE: This is an escape hatch for existing uses of `map` that do not work
@@ -2325,6 +2366,12 @@ class DatasetV1(DatasetV2):
         If not specified, elements will be processed sequentially. If the value
         `tf.data.experimental.AUTOTUNE` is used, then the number of parallel
         calls is set dynamically based on available CPU.
+      deterministic: (Optional.) A boolean controlling whether determinism
+        should be traded for performance by allowing elements to be produced out
+        of order.  If `deterministic` is `None`, the
+        `tf.data.Options.experimental_deterministic` dataset option (`True` by
+        default) is used to decide whether to produce elements
+        deterministically.
 
     Returns:
       Dataset: A `Dataset`.
@@ -2342,6 +2389,7 @@ class DatasetV1(DatasetV2):
               self,
               map_func,
               num_parallel_calls,
+              deterministic,
               preserve_cardinality=False,
               use_legacy_function=True))
 
@@ -2526,7 +2574,7 @@ def get_structure(dataset_or_iterator):
 
   Returns:
     A nested structure of `tf.TypeSpec` objects matching the structure of an
-    element of `dataset_or_iterator` and spacifying the type of individal
+    element of `dataset_or_iterator` and specifying the type of individual
     components.
 
   Raises:
@@ -3013,7 +3061,7 @@ class StructuredFunctionWrapper(object):
       use_legacy_function: (Optional.) A boolean that determines whether the
         function be created using `tensorflow.python.eager.function.defun`
         (default behavior) or `tensorflow.python.framework.function.Defun`
-        (legacy beheavior).
+        (legacy behavior).
       defun_kwargs: (Optional.) A dictionary mapping string argument names to
         values. If supplied, will be passed to `function` as keyword arguments.
 
@@ -3049,7 +3097,7 @@ class StructuredFunctionWrapper(object):
     # There is no graph to add in eager mode.
     add_to_graph &= not context.executing_eagerly()
     # There are some lifetime issues when a legacy function is not added to a
-    # out-living graph. It's already deprecated so de-priotizing the fix.
+    # out-living graph. It's already deprecated so de-prioritizing the fix.
     add_to_graph |= use_legacy_function
 
     if defun_kwargs is None:
@@ -3929,6 +3977,7 @@ class ParallelMapDataset(UnaryDataset):
                input_dataset,
                map_func,
                num_parallel_calls,
+               deterministic,
                use_inter_op_parallelism=True,
                preserve_cardinality=False,
                use_legacy_function=False):
@@ -3940,17 +3989,36 @@ class ParallelMapDataset(UnaryDataset):
         self._transformation_name(),
         dataset=input_dataset,
         use_legacy_function=use_legacy_function)
-    self._num_parallel_calls = ops.convert_to_tensor(
-        num_parallel_calls, dtype=dtypes.int32, name="num_parallel_calls")
+    if deterministic is None:
+      self._deterministic = "default"
+    elif deterministic:
+      self._deterministic = "true"
+    else:
+      self._deterministic = "false"
     self._preserve_cardinality = preserve_cardinality
-    variant_tensor = gen_dataset_ops.parallel_map_dataset(
-        input_dataset._variant_tensor,  # pylint: disable=protected-access
-        self._map_func.function.captured_inputs,
-        f=self._map_func.function,
-        num_parallel_calls=self._num_parallel_calls,
-        use_inter_op_parallelism=self._use_inter_op_parallelism,
-        preserve_cardinality=self._preserve_cardinality,
-        **self._flat_structure)
+    if deterministic is not None or compat.forward_compatible(2020, 3, 6):
+      self._num_parallel_calls = ops.convert_to_tensor(
+          num_parallel_calls, dtype=dtypes.int64, name="num_parallel_calls")
+      variant_tensor = gen_dataset_ops.parallel_map_dataset_v2(
+          input_dataset._variant_tensor,  # pylint: disable=protected-access
+          self._map_func.function.captured_inputs,
+          f=self._map_func.function,
+          num_parallel_calls=self._num_parallel_calls,
+          deterministic=self._deterministic,
+          use_inter_op_parallelism=self._use_inter_op_parallelism,
+          preserve_cardinality=self._preserve_cardinality,
+          **self._flat_structure)
+    else:
+      self._num_parallel_calls = ops.convert_to_tensor(
+          num_parallel_calls, dtype=dtypes.int32, name="num_parallel_calls")
+      variant_tensor = gen_dataset_ops.parallel_map_dataset(
+          input_dataset._variant_tensor,  # pylint: disable=protected-access
+          self._map_func.function.captured_inputs,
+          f=self._map_func.function,
+          num_parallel_calls=self._num_parallel_calls,
+          use_inter_op_parallelism=self._use_inter_op_parallelism,
+          preserve_cardinality=self._preserve_cardinality,
+          **self._flat_structure)
     super(ParallelMapDataset, self).__init__(input_dataset, variant_tensor)
 
   def _functions(self):
@@ -4042,6 +4110,8 @@ class ParallelInterleaveDataset(UnaryDataset):
                cycle_length,
                block_length,
                num_parallel_calls,
+               buffer_output_elements=AUTOTUNE,
+               prefetch_input_elements=AUTOTUNE,
                deterministic=None):
     """See `Dataset.interleave()` for details."""
     self._input_dataset = input_dataset
@@ -4056,6 +4126,15 @@ class ParallelInterleaveDataset(UnaryDataset):
         cycle_length, dtype=dtypes.int64, name="cycle_length")
     self._block_length = ops.convert_to_tensor(
         block_length, dtype=dtypes.int64, name="block_length")
+    self._buffer_output_elements = ops.convert_to_tensor(
+        buffer_output_elements,
+        dtype=dtypes.int64,
+        name="buffer_output_elements")
+    self._prefetch_input_elements = ops.convert_to_tensor(
+        prefetch_input_elements,
+        dtype=dtypes.int64,
+        name="prefetch_input_elements")
+
     self._num_parallel_calls = ops.convert_to_tensor(
         num_parallel_calls, dtype=dtypes.int64, name="num_parallel_calls")
     if deterministic is None:
@@ -4065,7 +4144,21 @@ class ParallelInterleaveDataset(UnaryDataset):
     else:
       deterministic_string = "false"
 
-    if deterministic is not None or compat.forward_compatible(2020, 2, 20):
+    if (buffer_output_elements != AUTOTUNE or
+        prefetch_input_elements != AUTOTUNE or
+        compat.forward_compatible(2020, 3, 6)):
+      variant_tensor = gen_dataset_ops.parallel_interleave_dataset_v4(
+          input_dataset._variant_tensor,  # pylint: disable=protected-access
+          self._map_func.function.captured_inputs,  # pylint: disable=protected-access
+          self._cycle_length,
+          self._block_length,
+          self._buffer_output_elements,
+          self._prefetch_input_elements,
+          self._num_parallel_calls,
+          f=self._map_func.function,
+          deterministic=deterministic_string,
+          **self._flat_structure)
+    elif deterministic is not None or compat.forward_compatible(2020, 2, 20):
       variant_tensor = gen_dataset_ops.parallel_interleave_dataset_v3(
           input_dataset._variant_tensor,  # pylint: disable=protected-access
           self._map_func.function.captured_inputs,  # pylint: disable=protected-access

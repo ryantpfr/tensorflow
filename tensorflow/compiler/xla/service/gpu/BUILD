@@ -115,11 +115,7 @@ cc_library(
 tf_cc_test(
     name = "custom_call_test",
     srcs = if_cuda_is_configured(["custom_call_test.cc"]),
-    tags = [
-        "gpu",
-        "no_oss",
-        "requires-gpu-sm35",
-    ],
+    tags = tf_cuda_tests_tags(),
     deps = [
         "//tensorflow/compiler/xla/tests:xla_internal_test_main",  # fixdeps: keep
     ] + if_cuda_is_configured([
@@ -860,6 +856,7 @@ cc_library(
         ":gpu_fusible",
         ":instruction_fusion",
         ":ir_emission_utils",
+        "//tensorflow/compiler/xla:debug_options_flags",
         "//tensorflow/compiler/xla:shape_util",
         "//tensorflow/compiler/xla/service:hlo",
         "//tensorflow/compiler/xla/service:hlo_reachability",
@@ -1134,6 +1131,7 @@ cc_library(
         "//tensorflow/compiler/xla:types",
         "//tensorflow/compiler/xla:util",
         "//tensorflow/compiler/xla/service:algebraic_simplifier",
+        "//tensorflow/compiler/xla/service:all_reduce_combiner",
         "//tensorflow/compiler/xla/service:batchnorm_expander",
         "//tensorflow/compiler/xla/service:buffer_assignment",
         "//tensorflow/compiler/xla/service:call_inliner",
@@ -1288,6 +1286,7 @@ cc_library(
         ":reduction_dimension_grouper",
         ":reduction_layout_normalizer",
         ":target_constants",
+        ":tree_reduction_rewriter",
         "//tensorflow/compiler/xla:statusor",
         "//tensorflow/compiler/xla/service:algebraic_simplifier",
         "//tensorflow/compiler/xla/service:hlo",
@@ -1661,6 +1660,7 @@ tf_cc_test(
         "//tensorflow/core:lib",
         "//tensorflow/core:test",
         "//tensorflow/core:test_main",
+        "//tensorflow/core/platform:resource_loader",
         "//tensorflow/stream_executor:dnn",
     ],
 )
